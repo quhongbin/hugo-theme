@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="{{ site.Language.Locale | default site.Language.Lang }}" dir="{{ site.Language.Direction | default "ltr" }}">
+  <head>
+    {{ partial "head.html" . }}
+  </head>
+  <body class="page-kind-{{ .Kind }}">
+    <a class="skip-link" href="#main-content">{{ i18n "skipToContent" }}</a>
+    <div class="site-background" aria-hidden="true"></div>
+    {{ partial "header.html" . }}
+    <main id="main-content" class="site-main">
+      {{ block "main" . }}{{ end }}
+    </main>
+    {{ partial "footer.html" . }}
+    {{ $script := resources.Get "js/main.js" | minify | fingerprint }}
+    <script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}" defer></script>
+  </body>
+</html>

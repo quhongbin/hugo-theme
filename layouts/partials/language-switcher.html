@@ -1,0 +1,11 @@
+<details class="language-switcher">
+  <summary aria-label="{{ i18n "selectLanguage" }}">
+    <span aria-hidden="true">文/A</span>
+    <span>{{ site.Language.Label }}</span>
+  </summary>
+  <ul>
+    {{ range .AllTranslations }}
+      <li><a href="{{ .RelPermalink }}" lang="{{ .Language.Locale }}"{{ if eq .Language site.Language }} aria-current="true"{{ end }}>{{ .Language.Label }}</a></li>
+    {{ end }}
+  </ul>
+</details>

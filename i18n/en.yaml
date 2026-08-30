@@ -1,0 +1,70 @@
+- id: skipToContent
+  translation: Skip to content
+- id: toggleMenu
+  translation: Toggle menu
+- id: mainNavigation
+  translation: Main navigation
+- id: socialLinks
+  translation: Social links
+- id: selectLanguage
+  translation: Select language
+- id: allRightsReserved
+  translation: All rights reserved.
+- id: welcome
+  translation: Welcome to
+- id: latestWriting
+  translation: Latest writing
+- id: recentPosts
+  translation: Recent posts
+- id: viewAll
+  translation: View all
+- id: collection
+  translation: Collection
+- id: section
+  translation: Section
+- id: taxonomy
+  translation: Browse taxonomy
+- id: term
+  translation: Topic
+- id: backToList
+  translation: Back to list
+- id: readingTime
+  translation:
+    one: 1 min read
+    other: "{{ .Count }} min read"
+- id: words
+  translation: words
+- id: filedUnder
+  translation: Filed under
+- id: tableOfContents
+  translation: Table of contents
+- id: onThisPage
+  translation: On this page
+- id: profileAndTopics
+  translation: Profile and topic navigation
+- id: blogAuthor
+  translation: Blog author
+- id: exploreTags
+  translation: Explore tags
+- id: categories
+  translation: Categories
+- id: readArticle
+  translation: Read article
+- id: readMore
+  translation: Read more
+- id: pagination
+  translation: Pagination
+- id: previousPage
+  translation: Previous page
+- id: nextPage
+  translation: Next page
+- id: nothingHere
+  translation: Nothing here yet
+- id: nothingHereDescription
+  translation: New stories are on the way. Please check back soon.
+- id: pageNotFound
+  translation: Page not found
+- id: pageNotFoundDescription
+  translation: This page may have moved, or it may never have existed.
+- id: returnHome
+  translation: Return home

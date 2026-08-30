@@ -1,0 +1,9 @@
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>&copy; {{ site.Params.since | default now.Year }}–{{ now.Year }} {{ site.Params.author }}. {{ i18n "allRightsReserved" }}</p>
+    <div class="footer-meta">
+      {{ with site.Params.icp }}<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">{{ . }}</a>{{ end }}
+      {{ with .OutputFormats.Get "RSS" }}<a href="{{ .RelPermalink }}">{{ partial "icon.html" (dict "name" "rss") }} RSS</a>{{ end }}
+    </div>
+  </div>
+</footer>

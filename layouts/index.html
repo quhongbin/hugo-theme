@@ -1,0 +1,33 @@
+{{ define "main" }}
+  <div class="content-grid">
+    {{ partial "sidebar.html" . }}
+    <section class="content-column" aria-labelledby="page-title">
+      <header class="hero glass-panel reveal">
+        <p class="eyebrow">{{ i18n "welcome" }}</p>
+        <h1 id="page-title">{{ site.Params.homeTitle | default site.Title }}</h1>
+        <p>{{ site.Params.homeSubtitle | default site.Params.description }}</p>
+      </header>
+
+      {{ $sections := site.Params.mainSections | default (slice "posts") }}
+      {{ $pages := where site.RegularPages "Section" "in" $sections }}
+      {{ $paginator := .Paginate $pages }}
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{{ i18n "latestWriting" }}</p>
+          <h2>{{ i18n "recentPosts" }}</h2>
+        </div>
+        {{ with site.GetPage "/posts" }}<a class="text-link" href="{{ .RelPermalink }}">{{ i18n "viewAll" }} →</a>{{ end }}
+      </div>
+
+      <div class="post-list">
+        {{ range $paginator.Pages }}
+          {{ partial "article-card.html" . }}
+        {{ else }}
+          {{ partial "empty-state.html" . }}
+        {{ end }}
+      </div>
+      {{ partial "pagination.html" . }}
+    </section>
+  </div>
+{{ end }}
+

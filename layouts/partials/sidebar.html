@@ -1,0 +1,43 @@
+<aside class="sidebar" aria-label="{{ i18n "profileAndTopics" }}">
+  <section class="profile-card glass-panel reveal">
+    <img src="{{ site.Params.avatar | default "images/avatar.webp" | relURL }}" alt="{{ site.Params.author }}" width="112" height="112">
+    <p class="eyebrow">{{ site.Params.profileRole | default (i18n "blogAuthor") }}</p>
+    <h2>{{ site.Params.author }}</h2>
+    <p>{{ site.Params.description }}</p>
+    {{ with site.Params.social }}
+      <div class="profile-social">
+        {{ range . }}
+          <a href="{{ .url }}" aria-label="{{ .name }}" title="{{ .name }}"{{ if not (hasPrefix .url "mailto:") }} target="_blank" rel="noopener noreferrer"{{ end }}>
+            {{ partial "icon.html" (dict "name" .icon) }}
+          </a>
+        {{ end }}
+      </div>
+    {{ end }}
+  </section>
+
+  {{ with site.Taxonomies.tags }}
+    <section class="topic-card glass-panel reveal">
+      <div class="card-title-row">
+        <h2>{{ i18n "exploreTags" }}</h2>
+        <span>{{ len . }}</span>
+      </div>
+      <div class="tag-cloud">
+        {{ range first 12 .ByCount }}
+          <a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }} <small>{{ .Count }}</small></a>
+        {{ end }}
+      </div>
+    </section>
+  {{ end }}
+
+  {{ with site.Taxonomies.categories }}
+    <section class="topic-card glass-panel reveal">
+      <h2>{{ i18n "categories" }}</h2>
+      <ul class="category-list">
+        {{ range first 8 .ByCount }}
+          <li><a href="{{ .Page.RelPermalink }}"><span>{{ .Page.LinkTitle }}</span><small>{{ .Count }}</small></a></li>
+        {{ end }}
+      </ul>
+    </section>
+  {{ end }}
+</aside>
+

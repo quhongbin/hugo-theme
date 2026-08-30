@@ -1,0 +1,30 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#111827">
+
+{{ $siteTitle := site.Title }}
+{{ $title := cond .IsHome $siteTitle (printf "%s · %s" .Title $siteTitle) }}
+{{ $description := .Description | default .Summary | default site.Params.description }}
+<title>{{ $title }}</title>
+<meta name="description" content="{{ $description | plainify | htmlUnescape }}">
+<meta name="author" content="{{ site.Params.author }}">
+<link rel="canonical" href="{{ .Permalink }}">
+
+{{ with .OutputFormats.Get "RSS" }}
+  <link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .RelPermalink }}">
+{{ end }}
+{{ range .AllTranslations }}
+  <link rel="alternate" hreflang="{{ .Language.Locale }}" href="{{ .Permalink }}">
+{{ end }}
+
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:title" content="{{ $title }}">
+<meta property="og:description" content="{{ $description | plainify | htmlUnescape }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:site_name" content="{{ site.Title }}">
+{{ with .Params.image }}<meta property="og:image" content="{{ . | absURL }}">{{ end }}
+
+{{ $style := resources.Get "css/main.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
+{{ with site.Params.favicon }}<link rel="icon" href="{{ . | relURL }}">{{ end }}

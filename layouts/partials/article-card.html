@@ -1,0 +1,22 @@
+<article class="post-card glass-panel reveal">
+  {{ with .Params.image }}
+    <a class="post-card-cover" href="{{ $.RelPermalink }}" tabindex="-1" aria-hidden="true">
+      <img src="{{ . | relURL }}" alt="" loading="lazy">
+    </a>
+  {{ end }}
+  <div class="post-card-body">
+    <div class="post-card-meta">
+      {{ if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_long" }}</time>{{ end }}
+      <span>{{ i18n "readingTime" (dict "Count" .ReadingTime) }}</span>
+    </div>
+    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+    <p>{{ .Summary | plainify | truncate 180 }}</p>
+    <div class="post-card-footer">
+      <div class="tag-list">
+        {{ range first 3 (.GetTerms "tags") }}<a class="tag" href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>{{ end }}
+      </div>
+      <a class="read-more" href="{{ .RelPermalink }}" aria-label="{{ i18n "readArticle" }}: {{ .LinkTitle }}">{{ i18n "readMore" }} <span>→</span></a>
+    </div>
+  </div>
+</article>
+

@@ -1,0 +1,41 @@
+{{ define "main" }}
+  <div class="article-layout">
+    <article class="article glass-panel reveal">
+      <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+      <header class="article-header">
+        <a class="back-link" href="{{ .Parent.RelPermalink }}">← {{ i18n "backToList" }}</a>
+        <h1>{{ .Title }}</h1>
+        <div class="article-meta">
+          {{ if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_long" }}</time>{{ end }}
+          <span>{{ i18n "readingTime" (dict "Count" .ReadingTime) }}</span>
+          <span>{{ .WordCount }} {{ i18n "words" }}</span>
+        </div>
+        {{ with .GetTerms "tags" }}
+          <div class="tag-list">
+            {{ range . }}<a class="tag" href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>{{ end }}
+          </div>
+        {{ end }}
+        {{ with .Description }}<p class="article-lead">{{ . }}</p>{{ end }}
+      </header>
+
+      {{ with .Params.image }}
+        <figure class="article-cover"><img src="{{ . | relURL }}" alt="" loading="eager"></figure>
+      {{ end }}
+      <div class="prose article-content" data-article-content>{{ .Content }}</div>
+
+      {{ with .GetTerms "categories" }}
+        <footer class="article-footer">
+          <span>{{ i18n "filedUnder" }}</span>
+          {{ range . }}<a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>{{ end }}
+        </footer>
+      {{ end }}
+    </article>
+
+    {{ if and (ne .Params.toc false) (in .TableOfContents "<li>") }}
+      <aside class="toc glass-panel" aria-label="{{ i18n "tableOfContents" }}">
+        <strong>{{ i18n "onThisPage" }}</strong>
+        {{ .TableOfContents }}
+      </aside>
+    {{ end }}
+  </div>
+{{ end }}

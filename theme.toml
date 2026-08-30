@@ -1,0 +1,11 @@
+name = "Mountain Glass"
+license = "MIT"
+licenselink = "https://opensource.org/license/mit"
+description = "A responsive bilingual Hugo blog theme with a scenic glassmorphism design."
+homepage = "https://github.com/quhongbin/myweb-vue3-ts"
+tags = ["blog", "responsive", "multilingual", "glassmorphism", "dark"]
+features = ["multilingual", "responsive", "pagination", "taxonomy", "table-of-contents"]
+min_version = "0.158.0"
+
+[author]
+  name = "Qu Hongbin"

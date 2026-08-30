@@ -1,0 +1,24 @@
+{{ define "main" }}
+  <div class="content-grid">
+    {{ partial "sidebar.html" . }}
+    <section class="content-column" aria-labelledby="page-title">
+      <header class="page-header glass-panel reveal">
+        <p class="eyebrow">{{ i18n .Kind | default (i18n "collection") }}</p>
+        <h1 id="page-title">{{ .Title }}</h1>
+        {{ with .Description }}<p>{{ . }}</p>{{ end }}
+        {{ with .Content }}<div class="page-intro prose">{{ . }}</div>{{ end }}
+      </header>
+
+      {{ $paginator := .Paginate .Pages }}
+      <div class="post-list">
+        {{ range $paginator.Pages }}
+          {{ partial "article-card.html" . }}
+        {{ else }}
+          {{ partial "empty-state.html" . }}
+        {{ end }}
+      </div>
+      {{ partial "pagination.html" . }}
+    </section>
+  </div>
+{{ end }}
+
