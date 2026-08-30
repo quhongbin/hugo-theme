@@ -8,4 +8,4 @@ features = ["multilingual", "responsive", "pagination", "taxonomy", "table-of-co
 min_version = "0.158.0"
 
 [author]
-  name = "Qu Hongbin"
+  name = "Hongbin Qu"
