@@ -16,6 +16,19 @@
   --bg-tint-a: rgba(255, 240, 210, 0.18);
   --bg-tint-b: rgba(40, 25, 10, 0.45);
 
+  /* 日志贡献日历：0 级为空格子，1~4 为逐级加深的活跃度 */
+  --log-cell: 13px;
+  --log-l0: rgba(26, 29, 43, 0.09);
+  --log-l1: #9be9a8;
+  --log-l2: #40c463;
+  --log-l3: #30a14e;
+  --log-l4: #216e39;
+  /* 日志分类徽标配色：日记 / 知识 */
+  --log-diary-bg: rgba(234, 179, 8, 0.18);
+  --log-diary-fg: #92610a;
+  --log-knowledge-bg: rgba(47, 125, 225, 0.14);
+  --log-knowledge-fg: #1559b2;
+
   --radius-xl: 28px;
   --radius-lg: 20px;
   --radius-md: 14px;
@@ -43,6 +56,16 @@
     --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.4);
     --bg-tint-a: rgba(106, 167, 255, 0.15);
     --bg-tint-b: rgba(2, 8, 18, 0.55);
+
+    --log-l0: rgba(255, 255, 255, 0.09);
+    --log-l1: #0e4429;
+    --log-l2: #006d32;
+    --log-l3: #26a641;
+    --log-l4: #39d353;
+    --log-diary-bg: rgba(251, 191, 36, 0.18);
+    --log-diary-fg: #fbbf24;
+    --log-knowledge-bg: rgba(106, 167, 255, 0.18);
+    --log-knowledge-fg: #6aa7ff;
   }
 }
 
@@ -63,6 +86,16 @@
   --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.4);
   --bg-tint-a: rgba(106, 167, 255, 0.15);
   --bg-tint-b: rgba(2, 8, 18, 0.55);
+
+  --log-l0: rgba(255, 255, 255, 0.09);
+  --log-l1: #0e4429;
+  --log-l2: #006d32;
+  --log-l3: #26a641;
+  --log-l4: #39d353;
+  --log-diary-bg: rgba(251, 191, 36, 0.18);
+  --log-diary-fg: #fbbf24;
+  --log-knowledge-bg: rgba(106, 167, 255, 0.18);
+  --log-knowledge-fg: #6aa7ff;
 }
 
 *,
@@ -1392,6 +1425,278 @@ a {
   opacity: 1;
   transform: translateY(0);
   transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+/* ===== 日志：线性时间线 + 贡献日历 ===== */
+
+.log-block {
+  margin-bottom: 34px;
+}
+
+.log-block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 6px;
+  margin-bottom: 14px;
+}
+
+.log-block-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+}
+
+.log-total {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.85rem;
+}
+
+/* --- 贡献日历（仿 GitHub 提交记录） --- */
+
+.log-calendar {
+  padding: 20px 22px 16px;
+  border-radius: var(--radius-lg);
+}
+
+.log-graph-scroll {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.log-graph {
+  display: inline-grid;
+  gap: 5px;
+}
+
+.log-graph-months {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--log-cell);
+  gap: 3px;
+  height: 15px;
+  /* 让过日期与星期标签列之后的第一列对齐 */
+  margin-left: calc(26px + 6px);
+  color: var(--text-soft);
+  font-size: 0.68rem;
+  line-height: 15px;
+}
+
+.log-graph-month {
+  overflow: visible;
+  white-space: nowrap;
+}
+
+.log-graph-body {
+  display: grid;
+  grid-template-columns: 26px auto;
+  gap: 6px;
+}
+
+.log-graph-weekdays {
+  display: grid;
+  grid-template-rows: repeat(7, var(--log-cell));
+  gap: 3px;
+  color: var(--text-soft);
+  font-size: 0.62rem;
+  text-align: right;
+}
+
+.log-graph-weekdays span {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.log-graph-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, var(--log-cell));
+  grid-auto-columns: var(--log-cell);
+  gap: 3px;
+}
+
+.log-day {
+  display: inline-block;
+  width: var(--log-cell);
+  height: var(--log-cell);
+  background: var(--log-l0);
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.log-day[data-level="1"] {
+  background: var(--log-l1);
+}
+
+.log-day[data-level="2"] {
+  background: var(--log-l2);
+}
+
+.log-day[data-level="3"] {
+  background: var(--log-l3);
+}
+
+.log-day[data-level="4"] {
+  background: var(--log-l4);
+}
+
+.log-day.is-outside {
+  background: none;
+  box-shadow: none;
+}
+
+.log-day[href]:hover {
+  box-shadow: inset 0 0 0 1px var(--text);
+}
+
+.log-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 14px;
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  justify-content: flex-end;
+}
+
+.log-legend > span:first-child {
+  margin-right: 2px;
+}
+
+/* --- 线性时间线：按年 / 月分组 --- */
+
+.log-timeline {
+  display: grid;
+  gap: 26px;
+}
+
+.log-year {
+  display: grid;
+  gap: 14px;
+}
+
+.log-year-label {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+}
+
+.log-month-label {
+  margin: 0 0 10px;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.log-entries {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  padding: 0 0 0 20px;
+  margin: 0;
+  list-style: none;
+}
+
+/* 贯穿当月条目左侧的竖线 */
+.log-entries::before {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 4px;
+  width: 2px;
+  content: "";
+  background: linear-gradient(to bottom, var(--accent-soft), transparent);
+  border-radius: 2px;
+}
+
+.log-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 14px;
+  align-items: baseline;
+  padding: 13px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  /* 从日历格子跳转过来时，避免被顶部导航遮住 */
+  scroll-margin-top: calc(var(--header-height) + 18px);
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.log-entry:hover {
+  border-color: var(--accent-soft);
+}
+
+/* 竖线上的日期节点 */
+.log-entry::before {
+  position: absolute;
+  top: 19px;
+  left: -20px;
+  width: 10px;
+  height: 10px;
+  content: "";
+  background: var(--accent);
+  border: 2px solid var(--surface-strong);
+  border-radius: 50%;
+}
+
+.log-entry-date {
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.log-entry-body {
+  display: grid;
+  gap: 6px;
+}
+
+.log-entry-title {
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.log-entry-title:hover {
+  color: var(--accent-strong);
+  text-decoration: underline;
+}
+
+.log-entry-type {
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  justify-self: start;
+  background: var(--log-knowledge-bg);
+  color: var(--log-knowledge-fg);
+}
+
+.log-entry-type.is-diary {
+  background: var(--log-diary-bg);
+  color: var(--log-diary-fg);
+}
+
+.log-entry-desc {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 640px) {
+  .log-entry {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .log-calendar {
+    padding: 16px 14px 12px;
+  }
 }
 
 /* ===== 加载首屏 splash ===== */

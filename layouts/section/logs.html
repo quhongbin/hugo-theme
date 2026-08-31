@@ -1,0 +1,32 @@
+{{/*
+  日志页：聚合所有带 logs front matter 的页面。
+  展示形态由站点配置 params.logs.mode 决定：
+    timeline 线性时间线（默认）| calendar 贡献日历 | both 两者都显示
+*/}}
+{{ define "main" }}
+  {{ $mode := lower (site.Params.logs.mode | default "timeline") }}
+  {{ $logs := where site.RegularPages "Params.logs" "!=" nil }}
+
+  <div class="content-grid">
+    {{ partial "sidebar.html" . }}
+    <section class="content-column" aria-labelledby="page-title">
+      <header class="page-header glass-panel reveal">
+        <p class="eyebrow">{{ i18n "logsEyebrow" }}</p>
+        <h1 id="page-title">{{ .Title }}</h1>
+        {{ with .Description }}<p>{{ . }}</p>{{ end }}
+        {{ with .Content }}<div class="page-intro prose">{{ . }}</div>{{ end }}
+      </header>
+
+      {{ with $logs }}
+        {{ if or (eq $mode "calendar") (eq $mode "both") }}
+          {{ partial "log-calendar.html" (dict "pages" . "mode" $mode) }}
+        {{ end }}
+        {{ if or (eq $mode "timeline") (eq $mode "both") }}
+          {{ partial "log-timeline.html" (dict "pages" . "mode" $mode) }}
+        {{ end }}
+      {{ else }}
+        {{ partial "empty-state.html" . }}
+      {{ end }}
+    </section>
+  </div>
+{{ end }}

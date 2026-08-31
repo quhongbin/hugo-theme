@@ -1,0 +1,106 @@
+{{/*
+  日志贡献日历：仿 GitHub 提交记录的方格热力图，展示最近 53 周每天的日志条数。
+  传入：dict "pages" 页面集合 "mode" 展示形态
+*/}}
+{{ $pages := .pages }}
+{{ $mode := .mode }}
+
+{{/* 按天统计日志条数 */}}
+{{ $counts := dict }}
+{{ range $pages }}
+  {{ $key := .Date.Format "2006-01-02" }}
+  {{ $counts = merge $counts (dict $key (add (index $counts $key | default 0) 1)) }}
+{{ end }}
+
+{{/* 右端日期：默认今天；若最新的日志早于一年前，则退回到最新日志当天，避免整张图全空 */}}
+{{ $end := now }}
+{{ $lastYear := now.AddDate -1 0 0 }}
+{{ with $pages }}
+  {{ $newest := index (sort . "Date" "desc") 0 }}
+  {{ if $newest.Date.Before $lastYear }}{{ $end = $newest.Date }}{{ end }}
+{{ end }}
+
+{{/* 起点回退 52 周并对齐到周日，共 53 周（371 天） */}}
+{{ $start := $end.AddDate 0 0 (sub -364 (int $end.Weekday)) }}
+
+{{/* 区间内的日志总数 */}}
+{{ $inRange := 0 }}
+{{ range $pages }}
+  {{ if and (not (.Date.Before $start)) (not (.Date.After $end)) }}
+    {{ $inRange = add $inRange 1 }}
+  {{ end }}
+{{ end }}
+
+<div class="log-block">
+  <div class="log-block-head">
+    {{ if eq $mode "both" }}<h2 class="log-block-title">{{ i18n "logCalendarTitle" }}</h2>{{ end }}
+    <p class="log-total">{{ i18n "logTotalInRange" (dict "Count" $inRange) }}</p>
+  </div>
+
+  <div class="log-calendar glass-panel reveal">
+    <div class="log-graph-scroll">
+      <div class="log-graph">
+        <div class="log-graph-months" aria-hidden="true">
+          {{ $prevMonth := "" }}
+          {{ range $i := seq 0 370 }}
+            {{ if eq (mod $i 7) 0 }}
+              {{ $day := $start.AddDate 0 0 $i }}
+              {{ $monthKey := $day.Format "2006-01" }}
+              {{ if ne $monthKey $prevMonth }}
+                <span class="log-graph-month">{{ $day.Format "1月" }}</span>
+                {{ $prevMonth = $monthKey }}
+              {{ else }}
+                <span class="log-graph-month"></span>
+              {{ end }}
+            {{ end }}
+          {{ end }}
+        </div>
+
+        <div class="log-graph-body">
+          <div class="log-graph-weekdays" aria-hidden="true">
+            <span></span>
+            <span>{{ i18n "weekdayMon" }}</span>
+            <span></span>
+            <span>{{ i18n "weekdayWed" }}</span>
+            <span></span>
+            <span>{{ i18n "weekdayFri" }}</span>
+            <span></span>
+          </div>
+
+          <div class="log-graph-grid">
+            {{ range $i := seq 0 370 }}
+              {{ $day := $start.AddDate 0 0 $i }}
+              {{ $key := $day.Format "2006-01-02" }}
+              {{ $count := index $counts $key | default 0 }}
+              {{ $title := i18n "logDayTooltip" (dict "Date" ($day | time.Format ":date_long") "Count" $count) }}
+              {{ if $day.After $end }}
+                <span class="log-day is-outside" aria-hidden="true"></span>
+              {{ else }}
+                {{ $level := 0 }}
+                {{ if ge $count 8 }}{{ $level = 4 }}
+                {{ else if ge $count 5 }}{{ $level = 3 }}
+                {{ else if ge $count 3 }}{{ $level = 2 }}
+                {{ else if ge $count 1 }}{{ $level = 1 }}{{ end }}
+                {{ if and (gt $count 0) (eq $mode "both") }}
+                  <a class="log-day" data-level="{{ $level }}" href="#log-{{ $key }}" title="{{ $title }}" aria-label="{{ $title }}"></a>
+                {{ else }}
+                  <span class="log-day" data-level="{{ $level }}" title="{{ $title }}" aria-label="{{ $title }}"></span>
+                {{ end }}
+              {{ end }}
+            {{ end }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-legend">
+      <span>{{ i18n "logLegendLess" }}</span>
+      <span class="log-day" data-level="0" aria-hidden="true"></span>
+      <span class="log-day" data-level="1" aria-hidden="true"></span>
+      <span class="log-day" data-level="2" aria-hidden="true"></span>
+      <span class="log-day" data-level="3" aria-hidden="true"></span>
+      <span class="log-day" data-level="4" aria-hidden="true"></span>
+      <span>{{ i18n "logLegendMore" }}</span>
+    </div>
+  </div>
+</div>

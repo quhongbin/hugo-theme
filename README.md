@@ -134,6 +134,14 @@ hugo server --source exampleSite --themesDir ../.. --theme hugo_theme
   - `.Pages` + `.Paginate`：子页面列表与分页。
   - 卡片/空状态/分页交给 `article-card.html`、`empty-state.html`、`pagination.html`。
 
+#### `layouts/section/logs.html` — 日志页（`/logs/`）
+- **作用**：把全站所有带 `logs` front matter 的页面聚合起来，替代 `_default/list.html` 渲染 `/logs/` 这个 section。
+- **渲染部分**：侧边栏 + 页头（标题/简介/导语取自 `content/<语言>/logs/_index.md`），随后按 `params.logs.mode` 渲染「贡献日历」与「线性时间线」两块内容；一条日志都没有时输出 `empty-state.html`。
+- **参数来源**：
+  - `site.Params.logs.mode`（默认 `timeline`）：`timeline` 只显示时间线、`calendar` 只显示贡献日历、`both` 两块都显示；其他值按时间线处理。
+  - `where site.RegularPages "Params.logs" "!=" nil`：筛出所有带 `logs` 字段的常规页面，作为两块内容的共同数据源。
+  - 两个 partial 均以 `dict "pages" … "mode" …` 调用：`log-calendar.html`、`log-timeline.html`。
+
 #### `layouts/_default/single.html` — 单篇文章 / 独立页
 - **作用**：渲染单篇内容（文章、about 页等）。
 - **渲染部分**：左侧文章主体（阅读进度条、返回链接、标题、日期/阅读时长/字数、标签、导语、封面图、正文、分类）+ 右侧目录（TOC）侧栏。
@@ -216,6 +224,23 @@ hugo server --source exampleSite --themesDir ../.. --theme hugo_theme
   - `.Summary | plainify | truncate 180`：摘要（纯文本截断 180 字）。
   - `.GetTerms "tags"` + `first 3`：最多 3 个标签。
 
+#### `layouts/partials/log-timeline.html` — 日志时间线
+- **作用**：把日志按「年 → 月」两级分组、倒序线性展示；同月的条目左侧有一条竖线与日期节点。
+- **参数来源**：调用方以 `dict "pages" … "mode" …` 传入：
+  - `.pages.GroupByDate "2006"` / `.Pages.GroupByDate "2006-01"`：两级分组（Hugo 的 `GroupByDate` 已按日期倒序），月份名取该组第一篇的 `.Date.Format "1月"`。
+  - 每页的 `.RelPermalink` / `.LinkTitle`：条目标题链接。
+  - `.Params.logs`：日志分类（预留「日记」「知识」），经模板内 `$typeSlug` 映射成徽标类名 `is-diary` / `is-knowledge`（其余落在 `is-other`）。
+  - `.Params.logs_descripe`：可选的一句话说明，有则显示在标题下方。
+  - 每天的第一条带 `id="log-YYYY-MM-DD"` 锚点，供贡献日历的格子跳转（`.mode` 为 `both` 时才生成链接）。
+
+#### `layouts/partials/log-calendar.html` — 日志贡献日历
+- **作用**：仿 GitHub 提交记录的方格热力图，展示最近 53 周（371 天）每天的日志条数，含月份标签、星期标签、图例与悬停提示。
+- **参数来源**：调用方以 `dict "pages" … "mode" …` 传入：
+  - 按 `.Date.Format "2006-01-02"` 统计每天条数，条数 ≥1/3/5/8 分别对应 `data-level` 的 1~4 级配色。
+  - 右端日期默认取 `now`；若最新日志早于一年前（`now.AddDate -1 0 0`）则退回到最新日志当天，避免整张图全空。起点 `AddDate 0 0 (sub -364 (int $end.Weekday))`，即回退 52 周并对齐到周日。
+  - `.mode` 为 `both` 时，有日志的格子渲染成 `<a href="#log-YYYY-MM-DD">`；否则渲染成不可点的 `<span>`。
+  - 文案来自 `i18n "logCalendarTitle" "logTotalInRange" "logDayTooltip" "logLegendLess" "logLegendMore" "weekdayMon" "weekdayWed" "weekdayFri"`。
+
 #### `layouts/partials/splash.html` — 首屏
 - **作用**：首页专属的一整屏开场（标题、副标题、每日一言、向下滚动提示），背景透出 `.site-background` 大图。
 - **参数来源**：
@@ -264,9 +289,9 @@ hugo server --source exampleSite --themesDir ../.. --theme hugo_theme
 
 | 来源 | 在模板中以什么形式出现 | 说明 |
 | --- | --- | --- |
-| 站点配置（`config` 的 `params`/`title`/`menus`/`taxonomies`） | `site.Params.*`、`site.Title`、`site.Menus.main`、`site.Taxonomies.*` | 站点级、跨页面共享 |
+| 站点配置（`config` 的 `params`/`title`/`menus`/`taxonomies`） | `site.Params.*`、`site.Title`、`site.Menus.main`、`site.Taxonomies.*`、`site.Params.logs.mode` | 站点级、跨页面共享 |
 | 当前渲染页面（Page 对象） | `.Title`、`.Content`、`.Summary`、`.Date`、`.ReadingTime`、`.WordCount`、`.Params.*`、`.RelPermalink`、`.Pages`、`.Kind`、`.IsHome`、`.GetTerms`、`i18n` | 由 Hugo 根据 URL 自动选定并传入 |
-| 内容 front matter | `.Params.image`、`.Params.toc`、`.Description`、`.Date` 等 | 写在 `content/**` 的 Markdown 头信息里 |
+| 内容 front matter | `.Params.image`、`.Params.toc`、`.Params.logs`、`.Params.logs_descripe`、`.Description`、`.Date` 等 | 写在 `content/**` 的 Markdown 头信息里；`logs` 决定该页是否进入日志页 |
 | partial 调用参数 | `dict "name" …` / `dict "Terms" …` | 调用方显式传入，partial 内用 `.name` / `.Terms` 取 |
 | `i18n/*.yaml` | `i18n "key"` | 按当前语言返回翻译文案 |
 | Hugo Pipes 资源 | `resources.Get "css/main.css" \| minify \| fingerprint` | 经处理后得到 `RelPermalink`/`Data.Integrity` |
