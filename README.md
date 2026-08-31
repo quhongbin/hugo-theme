@@ -227,6 +227,11 @@ hugo server --source exampleSite --themesDir ../.. --theme hugo_theme
 - **参数来源**：全部来自 `site.Params.dailyQuote`：
   - `enable`（默认开启）、`cacheDaily`（默认开启）、`sources`、`fallbacks`、`timeout`（默认 6000）、`typeSpeed`（默认 70）。
   - 这些字段经 `jsonify` 写入 `data-*` 属性；标签文案来自 `i18n "dailyQuote" "quoteLoading"`。
+- **内置默认值**：未配置 `sources` / `fallbacks` 时使用模板自带的值，避免接口不可用时区块被整个隐藏。
+  - `sources` 默认：`https://v1.hitokoto.cn/`（`contentField: hitokoto`、`authorField: from`）。
+  - `fallbacks` 默认：8 条内置句子（中英各若干），接口全部失败时随机取一条渲染。
+  - 自定义 `sources` 条目支持 `url` / `contentField` / `authorField`，`contentField` 支持 `"0.q"` 这类点号路径（用于返回数组的接口）。
+- **注意**：`assets/js/main.js` 中 `initDailyQuote()` 的调用必须位于该节所有 `const` 声明之后，否则会因暂时性死区抛 `ReferenceError` 并中断后续脚本。
 
 #### `layouts/partials/empty-state.html` — 空状态
 - **作用**：列表/总览/首页在没有内容时显示的占位提示。
