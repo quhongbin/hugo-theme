@@ -1,0 +1,31 @@
+{{/*
+  term.html — 单个分类 / 标签下的文章列表（/tags/emacs/、/categories/tech/ 等）
+
+  主题此前缺少 term.html，term 页在本 Hugo 版本下会回退到 _default/list.html，
+  而该版本的 term 查找链并不会读取 _default/term.html，导致正文列表为空、只剩空状态。
+  这里用 layouts/taxonomy/term.html 承接（对所有分类法通用），结构与 list.html 一致：
+  侧边栏 + 页头（小标题取分类法单数名）+ 文章卡片列表 + 分页。
+*/}}
+{{ define "main" }}
+  <div class="content-grid">
+    {{ partial "sidebar.html" . }}
+    <section class="content-column" aria-labelledby="page-title">
+      <header class="page-header glass-panel reveal">
+        <p class="eyebrow">{{ i18n .Data.Singular | default (i18n "term") }}</p>
+        <h1 id="page-title">{{ .Title }}</h1>
+        {{ with .Description }}<p>{{ . }}</p>{{ end }}
+        {{ with .Content }}<div class="page-intro prose">{{ . }}</div>{{ end }}
+      </header>
+
+      {{ $paginator := .Paginate .Pages }}
+      <div class="post-list">
+        {{ range $paginator.Pages }}
+          {{ partial "article-card.html" . }}
+        {{ else }}
+          {{ partial "empty-state.html" . }}
+        {{ end }}
+      </div>
+      {{ partial "pagination.html" . }}
+    </section>
+  </div>
+{{ end }}

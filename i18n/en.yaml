@@ -68,3 +68,19 @@
   translation: This page may have moved, or it may never have existed.
 - id: returnHome
   translation: Return home
+- id: dailyQuote
+  translation: Daily quote
+- id: scrollToExplore
+  translation: Scroll down
+- id: quoteLoading
+  translation: Fetching today's quote
+- id: toggleTheme
+  translation: Toggle light / dark theme
+- id: tag
+  translation: Tag
+- id: category
+  translation: Category
+- id: termTotal
+  translation:
+    one: "{{ .Count }} item"
+    other: "{{ .Count }} items"

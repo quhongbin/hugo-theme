@@ -1,0 +1,48 @@
+{{/*
+  每日一言
+  配置读取 site.Params.dailyQuote，通过 data-* 属性传给前端脚本，
+  由 assets/js/main.js 负责请求接口、缓存、打字机与随机入场动画。
+
+  未配置 sources / fallbacks 时使用下面的内置默认值，保证开箱即可显示内容，
+  不会因接口不可用而把整个区块隐藏掉。
+*/}}
+{{ $cfg := dict }}
+{{ with site.Params.dailyQuote }}{{ $cfg = . }}{{ end }}
+
+{{ $defaultSources := slice
+  (dict "url" "https://v1.hitokoto.cn/" "contentField" "hitokoto" "authorField" "from")
+}}
+
+{{ $defaultFallbacks := slice
+  (dict "content" "路漫漫其修远兮，吾将上下而求索。" "author" "屈原 · 离骚")
+  (dict "content" "长风破浪会有时，直挂云帆济沧海。" "author" "李白 · 行路难")
+  (dict "content" "山重水复疑无路，柳暗花明又一村。" "author" "陆游 · 游山西村")
+  (dict "content" "不积跬步，无以至千里；不积小流，无以成江海。" "author" "荀子 · 劝学")
+  (dict "content" "海内存知己，天涯若比邻。" "author" "王勃 · 送杜少府之任蜀州")
+  (dict "content" "落霞与孤鹜齐飞，秋水共长天一色。" "author" "王勃 · 滕王阁序")
+  (dict "content" "Stay hungry, stay foolish." "author" "Steve Jobs")
+  (dict "content" "The best way to predict the future is to invent it." "author" "Alan Kay")
+}}
+
+{{ $sources := $cfg.sources | default $defaultSources }}
+{{ $fallbacks := $cfg.fallbacks | default $defaultFallbacks }}
+
+{{ $enabled := true }}
+{{ if isset $cfg "enable" }}{{ $enabled = $cfg.enable }}{{ end }}
+
+{{ $cacheDaily := true }}
+{{ if isset $cfg "cacheDaily" }}{{ $cacheDaily = $cfg.cacheDaily }}{{ end }}
+
+{{ if $enabled }}
+  <blockquote class="daily-quote" data-daily-quote data-state="loading"
+    data-sources='{{ $sources | jsonify }}'
+    data-fallbacks='{{ $fallbacks | jsonify }}'
+    data-timeout="{{ $cfg.timeout | default 6000 }}"
+    data-type-speed="{{ $cfg.typeSpeed | default 70 }}"
+    data-cache-daily="{{ $cacheDaily }}">
+    <p class="daily-quote-label">{{ i18n "dailyQuote" }}</p>
+    <p class="daily-quote-text" aria-live="off"><span data-quote-text></span><span class="type-caret" aria-hidden="true"></span></p>
+    <footer class="daily-quote-author"><span data-quote-author></span></footer>
+    <span class="sr-only">{{ i18n "quoteLoading" }}</span>
+  </blockquote>
+{{ end }}

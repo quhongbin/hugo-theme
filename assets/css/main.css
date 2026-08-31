@@ -1,17 +1,21 @@
 :root {
-  --bg: #08111f;
-  --surface: rgba(248, 250, 252, 0.84);
-  --surface-strong: rgba(255, 255, 255, 0.94);
-  --surface-dark: rgba(8, 17, 31, 0.78);
-  --text: #172033;
-  --text-soft: #566176;
-  --text-on-dark: #f8fafc;
-  --line: rgba(255, 255, 255, 0.48);
+  /* === 亮色主题（默认） === */
+  --bg-image: url("../images/stellefly-honkai-3840x2160.jpg");
+  --bg: #f4e9d8;
+  --surface: rgba(255, 251, 244, 0.84);
+  --surface-strong: rgba(255, 253, 248, 0.95);
+  --text: #1a1d2b;
+  --text-soft: #5a5f72;
+  --text-on-dark: #1a1d2b;
+  --line: rgba(255, 255, 255, 0.6);
   --accent: #2f7de1;
   --accent-strong: #1559b2;
   --accent-soft: rgba(47, 125, 225, 0.12);
-  --shadow: 0 22px 60px rgba(1, 8, 20, 0.28);
-  --shadow-soft: 0 12px 30px rgba(1, 8, 20, 0.16);
+  --shadow: 0 22px 60px rgba(40, 25, 10, 0.25);
+  --shadow-soft: 0 12px 30px rgba(40, 25, 10, 0.16);
+  --bg-tint-a: rgba(255, 240, 210, 0.18);
+  --bg-tint-b: rgba(40, 25, 10, 0.45);
+
   --radius-xl: 28px;
   --radius-lg: 20px;
   --radius-md: 14px;
@@ -19,6 +23,46 @@
   --header-height: 74px;
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+}
+
+/* === 暗色主题：跟随系统 === */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-image: url("../images/mountain-landscape-3840x2160.png");
+    --bg: #0a1422;
+    --surface: rgba(8, 17, 31, 0.78);
+    --surface-strong: rgba(15, 25, 42, 0.92);
+    --text: #f0f4fa;
+    --text-soft: #9aa5b8;
+    --text-on-dark: #f8fafc;
+    --line: rgba(255, 255, 255, 0.12);
+    --accent: #6aa7ff;
+    --accent-strong: #4a8bff;
+    --accent-soft: rgba(106, 167, 255, 0.18);
+    --shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+    --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.4);
+    --bg-tint-a: rgba(106, 167, 255, 0.15);
+    --bg-tint-b: rgba(2, 8, 18, 0.55);
+  }
+}
+
+/* === 手动锁定暗色 === */
+:root[data-theme="dark"] {
+  --bg-image: url("../images/mountain-landscape-3840x2160.png");
+  --bg: #0a1422;
+  --surface: rgba(8, 17, 31, 0.78);
+  --surface-strong: rgba(15, 25, 42, 0.92);
+  --text: #f0f4fa;
+  --text-soft: #9aa5b8;
+  --text-on-dark: #f8fafc;
+  --line: rgba(255, 255, 255, 0.12);
+  --accent: #6aa7ff;
+  --accent-strong: #4a8bff;
+  --accent-soft: rgba(106, 167, 255, 0.18);
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.4);
+  --bg-tint-a: rgba(106, 167, 255, 0.15);
+  --bg-tint-b: rgba(2, 8, 18, 0.55);
 }
 
 *,
@@ -109,22 +153,12 @@ a {
   z-index: -2;
   inset: 0;
   background:
-    linear-gradient(120deg, rgba(3, 10, 25, 0.52), rgba(7, 25, 49, 0.12) 48%, rgba(3, 10, 25, 0.54)),
-    url("../images/mountain-night.webp") center / cover no-repeat;
-  transform: scale(1.02);
-  opacity: 0;
-  animation: background-fade-in 1.2s ease 0.05s both;
-}
-
-@keyframes background-fade-in {
-  from {
-    opacity: 0;
-    transform: scale(1.06);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1.02);
-  }
+    linear-gradient(120deg, var(--bg-tint-b), transparent 48%, var(--bg-tint-b)),
+    var(--bg-image) center / cover no-repeat;
+  /* --bg-blur / --bg-dim 由首屏滚动脚本写入，未启用首屏时恒为 0 */
+  transform: scale(calc(1.02 + var(--bg-dim, 0) * 0.06));
+  filter: blur(var(--bg-blur, 0px)) brightness(calc(1 - var(--bg-dim, 0) * 0.32));
+  transition: filter 0.15s linear, transform 0.15s linear;
 }
 
 .site-background::after {
@@ -132,8 +166,8 @@ a {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 18% 22%, rgba(66, 153, 225, 0.22), transparent 34%),
-    linear-gradient(to bottom, transparent 66%, rgba(2, 8, 18, 0.55));
+    radial-gradient(circle at 18% 22%, var(--bg-tint-a), transparent 34%),
+    linear-gradient(to bottom, transparent 66%, var(--bg-tint-b));
 }
 
 .glass-panel {
@@ -284,6 +318,60 @@ a {
   color: #fff;
   background: var(--accent);
   transform: translateY(-3px);
+}
+
+.theme-toggle {
+  position: relative;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  place-items: center;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  transform: translateY(-3px);
+}
+
+.theme-toggle .icon {
+  position: absolute;
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  fill: none;
+  transition: opacity 0.2s ease, transform 0.25s ease;
+}
+
+.theme-toggle .icon-moon {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* 默认（亮色）下展示月亮，暗示「点击进入暗色」 */
+:root:not([data-theme="dark"]) .theme-toggle .icon-sun {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.6);
+}
+:root:not([data-theme="dark"]) .theme-toggle .icon-moon {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-sun {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.6);
 }
 
 .icon {
@@ -540,6 +628,106 @@ a {
 
 .tag-cloud small {
   opacity: 0.68;
+}
+
+/* === 分类 / 标签页：按标题视觉宽度自适应的栅格 ===
+   列跨度由模板写入 --term-span（12 栅格）与 --term-span-sm（6 栅格），
+   文字多的条目占更多列，配合 dense 回填空隙。 */
+
+.term-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.term-item {
+  display: flex;
+  grid-column: span var(--term-span, 4);
+}
+
+.term-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 66px;
+  padding: 14px 16px;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.term-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+  transform: translateY(-3px);
+}
+
+.term-name {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.98rem;
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.term-count {
+  display: grid;
+  flex: 0 0 auto;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 8px;
+  color: var(--accent-strong);
+  font-size: 0.76rem;
+  font-weight: 750;
+  background: var(--accent-soft);
+  border-radius: 999px;
+  place-items: center;
+  transition: color 0.22s ease, background 0.22s ease;
+}
+
+.term-card:hover .term-count {
+  color: #fff;
+  background: var(--accent);
+}
+
+.section-count {
+  flex: 0 0 auto;
+  padding-bottom: 4px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.86rem;
+  font-weight: 650;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 860px) {
+  .term-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .term-item {
+    grid-column: span var(--term-span-sm, 3);
+  }
+}
+
+@media (max-width: 520px) {
+  .term-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .term-item {
+    grid-column: span 1;
+  }
 }
 
 .category-list {
@@ -1206,6 +1394,219 @@ a {
   transition: opacity 0.55s ease, transform 0.55s ease;
 }
 
+/* ===== 加载首屏 splash ===== */
+
+/* 首屏占据「一整屏 - 顶部导航高度」，与顶部导航合计正好一屏。
+   自身背景透明，透出后面固定的 .site-background，因此与首页是同一张背景。 */
+.splash {
+  position: relative;
+  display: grid;
+  min-height: calc(100vh - var(--header-height));
+  min-height: calc(100svh - var(--header-height));
+  padding: clamp(34px, 8vh, 92px) 24px clamp(96px, 15vh, 140px);
+  color: var(--text-on-dark);
+  text-align: center;
+  place-items: center;
+}
+
+.splash-inner {
+  display: grid;
+  gap: 20px;
+  width: min(100%, 860px);
+  justify-items: center;
+}
+
+.splash-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 6vw, 3.8rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-shadow: 0 8px 34px rgba(1, 8, 20, 0.5);
+}
+
+.splash-subtitle {
+  max-width: 640px;
+  margin: 0;
+  color: rgba(248, 250, 252, 0.84);
+  font-size: clamp(0.92rem, 2.2vw, 1.08rem);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.42);
+}
+
+/* 首屏向下滚动的提示，滚过首屏顶部 12% 后淡出 */
+.splash-hint {
+  position: absolute;
+  bottom: clamp(24px, 5vh, 48px);
+  left: 50%;
+  display: grid;
+  gap: 12px;
+  color: rgba(248, 250, 252, 0.82);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  justify-items: center;
+  transform: translateX(-50%);
+  transition: color 0.25s ease, opacity 0.35s ease;
+}
+
+.splash-hint:hover {
+  color: #fff;
+}
+
+.splash-hint-line {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 46px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.5));
+}
+
+.splash-hint-line::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 15px;
+  content: "";
+  background: #fff;
+  animation: hint-drop 1.9s ease-in-out infinite;
+}
+
+.splash.is-past .splash-hint {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ===== 每日一言 ===== */
+
+.daily-quote {
+  display: grid;
+  gap: 12px;
+  width: min(100%, 760px);
+  min-height: 150px;
+  padding: 26px clamp(20px, 4vw, 40px) 24px;
+  margin: 12px 0 0;
+  color: var(--text-on-dark);
+  text-align: center;
+  background: rgba(7, 17, 33, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 26px 60px rgba(1, 8, 20, 0.36);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  align-content: center;
+  justify-items: center;
+}
+
+.daily-quote-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  color: #a9d2ff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.daily-quote-label::before,
+.daily-quote-label::after {
+  width: 22px;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(169, 210, 255, 0.85));
+}
+
+.daily-quote-label::after {
+  background: linear-gradient(90deg, rgba(169, 210, 255, 0.85), transparent);
+}
+
+.daily-quote-text {
+  min-height: 2em;
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.02rem, 2.9vw, 1.46rem);
+  line-height: 1.8;
+  text-wrap: balance;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.4);
+}
+
+/* 接口返回前的占位省略号 */
+.daily-quote[data-state="loading"] .daily-quote-text::after {
+  content: "···";
+  font-size: 1.4rem;
+  letter-spacing: 0.3em;
+  animation: dots-pulse 1.2s ease-in-out infinite;
+}
+
+.type-caret {
+  display: none;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 3px;
+  vertical-align: -0.16em;
+  background: currentColor;
+  animation: caret-blink 1s steps(2, start) infinite;
+}
+
+.daily-quote[data-state="typing"] .type-caret,
+.daily-quote[data-state="done"] .type-caret {
+  display: inline-block;
+}
+
+.daily-quote-author {
+  min-height: 1.25em;
+  margin: 0;
+  color: rgba(248, 250, 252, 0.72);
+  font-size: 0.85rem;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.daily-quote[data-state="done"] .daily-quote-author {
+  opacity: 1;
+}
+
+/* 入场动画：由脚本随机挑选其中一个类名 */
+.daily-quote.anim-fade-up {
+  animation: quote-fade-up 0.9s cubic-bezier(0.22, 0.68, 0.32, 1) both;
+}
+
+.daily-quote.anim-fade-down {
+  animation: quote-fade-down 0.9s cubic-bezier(0.22, 0.68, 0.32, 1) both;
+}
+
+/* 从左往右淡入：起点在左侧 */
+.daily-quote.anim-fade-right {
+  animation: quote-fade-right 0.9s cubic-bezier(0.22, 0.68, 0.32, 1) both;
+}
+
+/* 从右往左淡入：起点在右侧 */
+.daily-quote.anim-fade-left {
+  animation: quote-fade-left 0.9s cubic-bezier(0.22, 0.68, 0.32, 1) both;
+}
+
+.daily-quote.anim-tornado {
+  animation: quote-tornado 1.15s cubic-bezier(0.22, 0.68, 0.32, 1) both;
+}
+
+/* 启用首屏时，首页内容先隐藏，滚动满一屏后由脚本加上 is-revealed 淡入 */
+.js body.has-splash .site-main {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.js body.has-splash.is-revealed .site-main {
+  opacity: 1;
+  transform: none;
+}
+
 @media (max-width: 1050px) {
   .brand-copy small,
   .header-social {
@@ -1309,9 +1710,60 @@ a {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes hint-drop {
+  0% { top: -15px; opacity: 0; }
+  30% { opacity: 1; }
+  100% { top: 46px; opacity: 0; }
+}
+
+@keyframes dots-pulse {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.75; }
+}
+
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes quote-fade-up {
+  from { opacity: 0; transform: translate3d(0, 52px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes quote-fade-down {
+  from { opacity: 0; transform: translate3d(0, -52px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes quote-fade-right {
+  from { opacity: 0; transform: translate3d(-72px, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes quote-fade-left {
+  from { opacity: 0; transform: translate3d(72px, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes quote-tornado {
+  0% { opacity: 0; transform: translate3d(0, 46px, 0) rotate(-200deg) scale(0.32); filter: blur(7px); }
+  55% { opacity: 1; }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg) scale(1); filter: blur(0); }
+}
+
 @media (max-width: 620px) {
   .site-main {
     padding-top: 24px;
+  }
+
+  .splash {
+    padding-bottom: 104px;
+  }
+
+  .daily-quote {
+    min-height: 132px;
+    padding: 22px 20px 20px;
   }
 
   .brand-copy small {
@@ -1422,6 +1874,20 @@ a {
     opacity: 1;
     transform: none;
   }
+
+  .js body.has-splash .site-main {
+    opacity: 1;
+    transform: none;
+  }
+
+  .daily-quote {
+    animation: none !important;
+  }
+
+  .splash-hint-line::after,
+  .type-caret {
+    animation: none !important;
+  }
 }
 
 @supports not (backdrop-filter: blur(1px)) {
@@ -1429,6 +1895,10 @@ a {
   .site-header,
   .site-footer {
     background: rgba(248, 250, 252, 0.96);
+  }
+
+  .daily-quote {
+    background: rgba(7, 17, 33, 0.68);
   }
 
   .site-footer {

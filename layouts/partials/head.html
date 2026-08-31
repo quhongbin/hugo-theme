@@ -1,7 +1,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark light">
-<meta name="theme-color" content="#111827">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#08111f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fff5e1" media="(prefers-color-scheme: light)">
+<script>
+  // 标记 JS 可用，供 CSS 用 .js 前缀开启渐进增强
+  document.documentElement.classList.add("js");
+  // 在首屏绘制前根据用户偏好初始化主题，避免图片淡入闪烁
+  (function () {
+    try {
+      var stored = localStorage.getItem("site-theme");
+      if (stored === "light" || stored === "dark") {
+        document.documentElement.setAttribute("data-theme", stored);
+      } else {
+        document.documentElement.setAttribute("data-theme",
+          window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      }
+    } catch (e) { /* 隐私模式静默忽略 */ }
+  })();
+</script>
 
 {{ $siteTitle := site.Title }}
 {{ $title := cond .IsHome $siteTitle (printf "%s · %s" .Title $siteTitle) }}

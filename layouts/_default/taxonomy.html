@@ -1,0 +1,32 @@
+{{/*
+  taxonomy.html — /categories/ 与 /tags/ 的总览页
+
+  分类 / 标签项交给 term-grid partial 渲染成按标题宽度自适应的栅格：
+  文字多的占更多列，文字少的占更少列。
+*/}}
+{{ define "main" }}
+  <div class="content-grid">
+    {{ partial "sidebar.html" . }}
+    <section class="content-column" aria-labelledby="page-title">
+      <header class="page-header glass-panel reveal">
+        <p class="eyebrow">{{ i18n .Data.Singular | default (i18n "taxonomy") }}</p>
+        <h1 id="page-title">{{ .Title }}</h1>
+        {{ with .Description }}<p>{{ . }}</p>{{ end }}
+        {{ with .Content }}<div class="page-intro prose">{{ . }}</div>{{ end }}
+      </header>
+
+      {{ with .Data.Terms }}
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">{{ i18n "collection" }}</p>
+            <h2>{{ $.Title }}</h2>
+          </div>
+          <span class="section-count">{{ i18n "termTotal" (dict "Count" (len .)) }}</span>
+        </div>
+        {{ partial "term-grid.html" (dict "Terms" .) }}
+      {{ else }}
+        {{ partial "empty-state.html" . }}
+      {{ end }}
+    </section>
+  </div>
+{{ end }}
