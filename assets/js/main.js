@@ -112,9 +112,10 @@
   }
 
   /* ---------- 每日一言 ---------- */
-
-  const quoteEl = document.querySelector("[data-daily-quote]");
-  if (quoteEl) initDailyQuote(quoteEl);
+  /* 注意：initDailyQuote 的调用必须放在本节所有 const 声明之后。
+     函数声明会被提升，但 const 不会——提前调用会在 initDailyQuote 内部
+     读到尚未初始化的 parseJSON / store / today 等，直接抛 ReferenceError，
+     连带着后面的主题切换、阅读进度等逻辑一起中断。 */
 
   const ANIMATIONS = ["fade-up", "fade-down", "fade-right", "fade-left", "tornado"];
 
@@ -287,6 +288,9 @@
 
     resolve();
   }
+
+  const quoteEl = document.querySelector("[data-daily-quote]");
+  if (quoteEl) initDailyQuote(quoteEl);
 
   /* ---------- 主题切换：亮 / 暗 背景图 ---------- */
 
