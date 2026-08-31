@@ -3,10 +3,22 @@
   <head>
     {{ partial "head.html" . }}
   </head>
-  <body class="page-kind-{{ .Kind }}">
+  {{/*
+    首屏（splash）只在首页启用，且可通过 params.splash.enable 关闭。
+    启用时给 body 加上 has-splash：首页内容初始隐藏，滚动满一屏后再淡入。
+  */}}
+  {{ $splashEnabled := false }}
+  {{ if .IsHome }}
+    {{ $splashCfg := dict }}
+    {{ with site.Params.splash }}{{ $splashCfg = . }}{{ end }}
+    {{ $splashEnabled = true }}
+    {{ if isset $splashCfg "enable" }}{{ $splashEnabled = $splashCfg.enable }}{{ end }}
+  {{ end }}
+  <body class="page-kind-{{ .Kind }}{{ if $splashEnabled }} has-splash{{ end }}">
     <a class="skip-link" href="#main-content">{{ i18n "skipToContent" }}</a>
     <div class="site-background" aria-hidden="true"></div>
     {{ partial "header.html" . }}
+    {{ if $splashEnabled }}{{ partial "splash.html" . }}{{ end }}
     <main id="main-content" class="site-main">
       {{ block "main" . }}{{ end }}
     </main>

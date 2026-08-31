@@ -1,0 +1,25 @@
+{{/*
+  加载首屏（splash）
+  仅首页渲染。占据一整屏（100vh - 顶部导航高度），背景直接透出站点大图
+  .site-background，因此与首页使用的是同一张背景；向下滚动满一屏后进入首页内容，
+  背景同步模糊（模糊逻辑见 assets/js/main.js）。
+*/}}
+{{ $cfg := dict }}
+{{ with site.Params.splash }}{{ $cfg = . }}{{ end }}
+
+{{ $title := $cfg.title | default site.Title }}
+{{ $subtitle := $cfg.subtitle | default site.Params.tagline }}
+{{ $blur := $cfg.blur | default 14 }}
+
+<section class="splash" data-splash data-blur="{{ $blur }}" aria-label="{{ $title | plainify }}">
+  <div class="splash-inner">
+    <p class="splash-title">{{ $title }}</p>
+    {{ with $subtitle }}<p class="splash-subtitle">{{ . }}</p>{{ end }}
+    {{ partial "daily-quote.html" . }}
+  </div>
+
+  <a class="splash-hint" href="#main-content">
+    <span>{{ i18n "scrollToExplore" }}</span>
+    <span class="splash-hint-line" aria-hidden="true"></span>
+  </a>
+</section>

@@ -1,0 +1,53 @@
+{{/*
+  term-grid.html — 分类 / 标签的自适应栅格
+
+  用法：
+    {{ partial "term-grid.html" (dict "Terms" .Data.Terms) }}
+
+  Terms 为空时不输出任何内容，空状态由调用方处理。
+
+  实现要点：
+    卡片宽度跟随标题的「视觉宽度」——CJK / 全角字符记 2 个单位，
+    其余记 1 个单位，再按档位映射到 12 栅格下的列跨度 --term-span。
+    文字多的占更多列，文字少的占更少列，配合 grid-auto-flow: dense
+    让空隙被后续卡片回填。
+*/}}
+
+{{ with .Terms }}
+  <ul class="term-grid">
+    {{ range .ByCount }}
+      {{ $title := .Page.LinkTitle }}
+      {{ $runeCount := len (split $title "") }}
+      {{/* CJK 汉字、假名、韩文、全角标点均按 2 个宽度单位计 */}}
+      {{ $wideCount := len (findRE `[\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}\x{3000}-\x{303F}\x{FF01}-\x{FF60}\x{FFE0}-\x{FFE6}]` $title) }}
+      {{ $visualWidth := add (mul $wideCount 2) (sub $runeCount $wideCount) }}
+
+      {{ $span := 3 }}
+      {{ if gt $visualWidth 30 }}
+        {{ $span = 8 }}
+      {{ else if gt $visualWidth 22 }}
+        {{ $span = 7 }}
+      {{ else if gt $visualWidth 16 }}
+        {{ $span = 6 }}
+      {{ else if gt $visualWidth 10 }}
+        {{ $span = 5 }}
+      {{ else if gt $visualWidth 6 }}
+        {{ $span = 4 }}
+      {{ end }}
+
+      {{/* 窄屏切到 6 列栅格，跨度按比例压缩，避免长卡片独占整行 */}}
+      {{ $spanSm := int (math.Max 2 (div $span 2)) }}
+
+      {{/*
+        reveal 挂在 li 而不是内层 a 上：.term-card 自身带 transform hover 过渡，
+        若把 reveal 放在 a 上，.reveal.is-visible 的 transform 过渡会覆盖掉 hover 的 0.22s。
+      */}}
+      <li class="term-item reveal" style="--term-span: {{ $span }}; --term-span-sm: {{ $spanSm }};">
+        <a class="term-card glass-panel" href="{{ .Page.RelPermalink }}">
+          <span class="term-name">{{ $title }}</span>
+          <span class="term-count">{{ .Count }}</span>
+        </a>
+      </li>
+    {{ end }}
+  </ul>
+{{ end }}

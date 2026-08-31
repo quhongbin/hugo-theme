@@ -68,4 +68,19 @@
   translation: 这个页面可能已经移动，或者从未存在过。
 - id: returnHome
   translation: 返回首页
+- id: dailyQuote
+  translation: 每日一言
+- id: scrollToExplore
+  translation: 向下滚动
+- id: quoteLoading
+  translation: 正在获取今日一言
 
+- id: toggleTheme
+  translation: 切换亮色 / 暗色主题
+- id: tag
+  translation: 标签
+- id: category
+  translation: 分类
+- id: termTotal
+  translation:
+    other: "共 {{ .Count }} 项"

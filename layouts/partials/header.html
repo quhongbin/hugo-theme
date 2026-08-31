@@ -33,6 +33,25 @@
         </div>
       {{ end }}
 
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="{{ i18n "toggleTheme" | default "切换主题" }}" title="{{ i18n "toggleTheme" | default "切换主题" }}">
+        <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <g stroke-linecap="round">
+            <line x1="12" y1="2.5" x2="12" y2="5"></line>
+            <line x1="12" y1="19" x2="12" y2="21.5"></line>
+            <line x1="2.5" y1="12" x2="5" y2="12"></line>
+            <line x1="19" y1="12" x2="21.5" y2="12"></line>
+            <line x1="5.2" y1="5.2" x2="6.95" y2="6.95"></line>
+            <line x1="17.05" y1="17.05" x2="18.8" y2="18.8"></line>
+            <line x1="5.2" y1="18.8" x2="6.95" y2="17.05"></line>
+            <line x1="17.05" y1="6.95" x2="18.8" y2="5.2"></line>
+          </g>
+        </svg>
+        <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20 14.5A8 8 0 0 1 9.5 4a0.5 0.5 0 0 0-0.78-0.55 9.5 9.5 0 1 0 11.83 11.83 0.5 0.5 0 0 0-0.55-0.78Z"></path>
+        </svg>
+      </button>
+
       {{ if hugo.IsMultilingual }}{{ partial "language-switcher.html" . }}{{ end }}
     </nav>
   </div>

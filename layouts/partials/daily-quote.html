@@ -1,0 +1,27 @@
+{{/*
+  每日一言
+  配置读取 site.Params.dailyQuote，通过 data-* 属性传给前端脚本，
+  由 assets/js/main.js 负责请求接口、缓存、打字机与随机入场动画。
+*/}}
+{{ $cfg := dict }}
+{{ with site.Params.dailyQuote }}{{ $cfg = . }}{{ end }}
+
+{{ $enabled := true }}
+{{ if isset $cfg "enable" }}{{ $enabled = $cfg.enable }}{{ end }}
+
+{{ $cacheDaily := true }}
+{{ if isset $cfg "cacheDaily" }}{{ $cacheDaily = $cfg.cacheDaily }}{{ end }}
+
+{{ if $enabled }}
+  <blockquote class="daily-quote" data-daily-quote data-state="loading"
+    data-sources='{{ $cfg.sources | default slice | jsonify }}'
+    data-fallbacks='{{ $cfg.fallbacks | default slice | jsonify }}'
+    data-timeout="{{ $cfg.timeout | default 6000 }}"
+    data-type-speed="{{ $cfg.typeSpeed | default 70 }}"
+    data-cache-daily="{{ $cacheDaily }}">
+    <p class="daily-quote-label">{{ i18n "dailyQuote" }}</p>
+    <p class="daily-quote-text" aria-live="off"><span data-quote-text></span><span class="type-caret" aria-hidden="true"></span></p>
+    <footer class="daily-quote-author"><span data-quote-author></span></footer>
+    <span class="sr-only">{{ i18n "quoteLoading" }}</span>
+  </blockquote>
+{{ end }}
