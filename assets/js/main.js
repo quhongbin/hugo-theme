@@ -45,6 +45,11 @@
     progress.style.width = `${percentage}%`;
   };
 
+  // Trigger the header avatar reveal once the page is ready.
+  requestAnimationFrame(() => {
+    if (header) header.classList.add("is-ready");
+  });
+
   updateScrollState();
   window.addEventListener("scroll", updateScrollState, { passive: true });
   window.addEventListener("resize", () => {

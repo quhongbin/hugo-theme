@@ -112,6 +112,19 @@ a {
     linear-gradient(120deg, rgba(3, 10, 25, 0.52), rgba(7, 25, 49, 0.12) 48%, rgba(3, 10, 25, 0.54)),
     url("../images/mountain-night.webp") center / cover no-repeat;
   transform: scale(1.02);
+  opacity: 0;
+  animation: background-fade-in 1.2s ease 0.05s both;
+}
+
+@keyframes background-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.02);
+  }
 }
 
 .site-background::after {
@@ -175,7 +188,14 @@ a {
   border-radius: 14px;
   object-fit: cover;
   box-shadow: 0 7px 16px rgba(8, 20, 38, 0.2);
-  transition: transform 0.25s ease, border-radius 0.25s ease;
+  transform: scale(0.6) rotate(-12deg);
+  opacity: 0;
+  transition: transform 0.45s ease, border-radius 0.25s ease, opacity 0.45s ease;
+}
+
+.site-header.is-ready .brand-avatar {
+  transform: scale(1) rotate(0);
+  opacity: 1;
 }
 
 .site-brand:hover .brand-avatar {
@@ -410,8 +430,14 @@ a {
   border-radius: 28px;
   object-fit: cover;
   box-shadow: 0 14px 32px rgba(8, 20, 38, 0.24);
-  transform: rotate(-2deg);
-  transition: transform 0.3s ease, border-radius 0.3s ease;
+  transform: rotate(-2deg) scale(0.85);
+  opacity: 0;
+  transition: transform 0.45s ease, border-radius 0.3s ease, opacity 0.55s ease;
+}
+
+.profile-card.is-visible > img {
+  transform: rotate(-2deg) scale(1);
+  opacity: 1;
 }
 
 .profile-card:hover > img {
@@ -659,7 +685,14 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transform: scale(1.12);
+  opacity: 0;
+  transition: transform 0.6s ease, opacity 0.6s ease;
+}
+
+.post-card.is-visible .post-card-cover img {
+  transform: scale(1);
+  opacity: 1;
 }
 
 .post-card:hover .post-card-cover img {
@@ -905,6 +938,14 @@ a {
   width: 100%;
   max-height: 520px;
   object-fit: cover;
+  transform: scale(1.1);
+  opacity: 0;
+  transition: transform 0.7s ease, opacity 0.7s ease;
+}
+
+.article.is-visible .article-cover img {
+  transform: scale(1);
+  opacity: 1;
 }
 
 .prose {
@@ -1372,7 +1413,12 @@ a {
     transition-duration: 0.01ms !important;
   }
 
-  .reveal {
+  .reveal,
+  .site-background,
+  .brand-avatar,
+  .profile-card > img,
+  .post-card-cover img,
+  .article-cover img {
     opacity: 1;
     transform: none;
   }
