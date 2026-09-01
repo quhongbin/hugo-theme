@@ -6,7 +6,9 @@
   --surface-strong: rgba(255, 253, 248, 0.95);
   --text: #1a1d2b;
   --text-soft: #5a5f72;
-  --text-on-dark: #1a1d2b;
+  /* 用于深色表面的文字（首屏、每日一言卡片），这些表面在亮/暗主题下都是深色，
+     因此这里固定为浅色，不能随主题变深，否则会“文字与背景同色”而看不见。 */
+  --text-on-dark: #f8fafc;
   --line: rgba(255, 255, 255, 0.6);
   --accent: #2f7de1;
   --accent-strong: #1559b2;
