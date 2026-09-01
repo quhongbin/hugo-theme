@@ -84,3 +84,27 @@
   translation:
     one: "{{ .Count }} item"
     other: "{{ .Count }} items"
+
+# ---- Logs page ----
+- id: logsEyebrow
+  translation: Log entries
+- id: logTimelineTitle
+  translation: Timeline
+- id: logCalendarTitle
+  translation: Log calendar
+- id: logTotalInRange
+  translation:
+    one: "{{ .Count }} log in the last year"
+    other: "{{ .Count }} logs in the last year"
+- id: logDayTooltip
+  translation: "{{ .Date }} · {{ .Count }} logs"
+- id: logLegendLess
+  translation: Less
+- id: logLegendMore
+  translation: More
+- id: weekdayMon
+  translation: Mon
+- id: weekdayWed
+  translation: Wed
+- id: weekdayFri
+  translation: Fri

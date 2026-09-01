@@ -1,0 +1,42 @@
+{{/*
+  日志时间线：按年 → 月分组，倒序线性展示。
+  传入：dict "pages" 页面集合 "mode" 展示形态
+*/}}
+{{ $pages := .pages }}
+{{ $mode := .mode }}
+{{/* logs 字段的取值 → 样式类名；预留「日记」「知识」两类，其余落在 other */}}
+{{ $typeSlug := dict "日记" "diary" "diary" "diary" "知识" "knowledge" "knowledge" "knowledge" }}
+
+<div class="log-block">
+  {{ if eq $mode "both" }}
+    <h2 class="log-block-title">{{ i18n "logTimelineTitle" }}</h2>
+  {{ end }}
+
+  <div class="log-timeline">
+    {{ range $pages.GroupByDate "2006" }}
+      <section class="log-year">
+        <h3 class="log-year-label">{{ .Key }}</h3>
+        {{ range .Pages.GroupByDate "2006-01" }}
+          <div class="log-month">
+            <h4 class="log-month-label">{{ (index .Pages 0).Date.Format "1月" }}</h4>
+            <ol class="log-entries">
+              {{ $prevDay := "" }}
+              {{ range .Pages }}
+                {{ $key := .Date.Format "2006-01-02" }}
+                <li class="log-entry reveal"{{ if ne $key $prevDay }} id="log-{{ $key }}"{{ end }}>
+                  <time class="log-entry-date" datetime="{{ $key }}" title="{{ .Date | time.Format ":date_long" }}">{{ .Date.Format "01-02" }}</time>
+                  <div class="log-entry-body">
+                    <a class="log-entry-title" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+                    {{ with .Params.logs }}<span class="log-entry-type is-{{ index $typeSlug (string .) | default "other" }}">{{ . }}</span>{{ end }}
+                    {{ with .Params.logs_descripe }}<p class="log-entry-desc">{{ . }}</p>{{ end }}
+                  </div>
+                </li>
+                {{ $prevDay = $key }}
+              {{ end }}
+            </ol>
+          </div>
+        {{ end }}
+      </section>
+    {{ end }}
+  </div>
+</div>

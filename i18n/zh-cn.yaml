@@ -84,3 +84,26 @@
 - id: termTotal
   translation:
     other: "共 {{ .Count }} 项"
+
+# ---- 日志页 ----
+- id: logsEyebrow
+  translation: 日志记录
+- id: logTimelineTitle
+  translation: 时间线
+- id: logCalendarTitle
+  translation: 日志日历
+- id: logTotalInRange
+  translation:
+    other: "过去一年共 {{ .Count }} 条日志"
+- id: logDayTooltip
+  translation: "{{ .Date }} · {{ .Count }} 条日志"
+- id: logLegendLess
+  translation: 少
+- id: logLegendMore
+  translation: 多
+- id: weekdayMon
+  translation: 一
+- id: weekdayWed
+  translation: 三
+- id: weekdayFri
+  translation: 五

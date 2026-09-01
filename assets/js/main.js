@@ -78,6 +78,11 @@
     });
   };
 
+  // Trigger the header avatar reveal once the page is ready.
+  requestAnimationFrame(() => {
+    if (header) header.classList.add("is-ready");
+  });
+
   updateScrollState();
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", () => {
