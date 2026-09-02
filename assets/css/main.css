@@ -31,10 +31,44 @@
   --log-knowledge-bg: rgba(47, 125, 225, 0.14);
   --log-knowledge-fg: #1559b2;
 
+  /* === 文章正文（.prose）配色：当前样式（custom-theme）===
+     正文颜色全部走变量，暗色模式下统一覆盖，
+     避免深色背景配深色文字导致「文字与背景融为一体」。 */
+  --prose-text: #283448;
+  --prose-heading: #152035;
+  --prose-muted: #42516a;
+  --prose-quote-bg: rgba(47, 125, 225, 0.08);
+  --prose-code-inline: #b42355;
+  --prose-code-inline-bg: rgba(148, 163, 184, 0.18);
+  --prose-border: rgba(51, 65, 85, 0.12);
+  --prose-th-bg: rgba(47, 125, 225, 0.09);
+  /* 代码块底色 / 文字色。这里是 custom-theme 的默认值（深蓝底、浅字），
+     选择 macos / github / gruvbox 时由 code-themes.css 里的
+     :root[data-code-style="…"] 覆盖。 */
+  --code-bg: #0e1728;
+  --code-fg: #dbeafe;
+
   --radius-xl: 28px;
   --radius-lg: 20px;
   --radius-md: 14px;
+  /* 站点内容区（页眉 / 主体 / 页脚）的最大宽度 */
   --content-width: 1240px;
+  /* 文章正文列的最大宽度。真正生效的宽度还会被「容器剩余宽度」裁一次
+     （见 .article-layout），所以这里填得再大也不会把页面撑出横向滚动条 */
+  --article-width: 860px;
+  /* 文章右侧目录（TOC）栏宽度 */
+  --toc-width: 250px;
+  /* 文章列与目录栏之间的间距 */
+  --article-gap: 26px;
+  /* 文章卡片的左右内边距。封面图用它的负值做「出血」，撑满整张卡片宽度，
+     因此两者必须用同一个变量，否则封面会与正文左右错位 */
+  --article-pad: clamp(25px, 6vw, 72px);
+  /* 上面是「用户配置的内边距」，下面是「实际生效的内边距」。
+     中间多一层是为了让移动端能在不覆盖配置值的前提下再压一次上限
+     （见 @media (max-width: 640px) 里的 .article）。
+     .article 的 padding 和 .article-cover 的负外边距都只引用 --article-pad-x，
+     这样两者永远相等，封面图通栏时不会与正文错位。 */
+  --article-pad-x: var(--article-pad);
   --header-height: 74px;
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", "Noto Serif SC", "Songti SC", serif;
@@ -68,6 +102,19 @@
     --log-diary-fg: #fbbf24;
     --log-knowledge-bg: rgba(106, 167, 255, 0.18);
     --log-knowledge-fg: #6aa7ff;
+
+    /* 暗色模式下的正文配色：文字调亮，与深色卡片背景拉开对比。
+       代码块底色也换成更深的蓝黑，保证亮暗两种模式下代码都清晰。 */
+    --prose-text: #e2e8f2;
+    --prose-heading: #f4f7fc;
+    --prose-muted: #aab6ca;
+    --prose-quote-bg: rgba(106, 167, 255, 0.12);
+    --prose-code-inline: #ff9ec4;
+    --prose-code-inline-bg: rgba(148, 163, 184, 0.22);
+    --prose-border: rgba(255, 255, 255, 0.14);
+    --prose-th-bg: rgba(106, 167, 255, 0.14);
+    --code-bg: #0b1220;
+    --code-fg: #dbeafe;
   }
 }
 
@@ -98,6 +145,18 @@
   --log-diary-fg: #fbbf24;
   --log-knowledge-bg: rgba(106, 167, 255, 0.18);
   --log-knowledge-fg: #6aa7ff;
+
+  /* 手动锁定暗色时的正文配色，与上面「跟随系统暗色」保持一致 */
+  --prose-text: #e2e8f2;
+  --prose-heading: #f4f7fc;
+  --prose-muted: #aab6ca;
+  --prose-quote-bg: rgba(106, 167, 255, 0.12);
+  --prose-code-inline: #ff9ec4;
+  --prose-code-inline-bg: rgba(148, 163, 184, 0.22);
+  --prose-border: rgba(255, 255, 255, 0.14);
+  --prose-th-bg: rgba(106, 167, 255, 0.14);
+  --code-bg: #0b1220;
+  --code-fg: #dbeafe;
 }
 
 *,
@@ -409,6 +468,91 @@ a {
   transform: rotate(90deg) scale(0.6);
 }
 
+/* ---------- 代码高亮样式选择器 ----------
+   包裹太阳/月亮按钮；鼠标悬停或键盘聚焦到该区域时，
+   下方的样式菜单自动显现，移开即收起。 */
+.theme-picker {
+  position: relative;
+}
+
+.code-style-menu {
+  position: absolute;
+  z-index: 120;
+  top: calc(100% + 10px);
+  right: 0;
+  display: grid;
+  gap: 3px;
+  width: 168px;
+  padding: 10px;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+
+/* 悬停 / 键盘聚焦时自动展开 */
+.theme-picker:hover .code-style-menu,
+.theme-picker:focus-within .code-style-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.code-style-menu strong {
+  padding: 2px 8px 6px;
+  color: var(--text-soft);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.code-style-option {
+  padding: 7px 10px;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.code-style-option:hover {
+  background: var(--accent-soft);
+}
+
+.code-style-option.is-active {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}
+
+/* 移动端：导航变成下拉面板，绝对定位菜单会被面板的滚动容器裁剪，
+   改为普通流内展开（点按太阳/月亮按钮聚焦后同样会显现） */
+@media (max-width: 860px) {
+  .code-style-menu {
+    position: static;
+    display: none;
+    width: 100%;
+    margin-top: 6px;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .theme-picker:hover .code-style-menu,
+  .theme-picker:focus-within .code-style-menu {
+    display: grid;
+  }
+}
+
 .icon {
   width: 19px;
   height: 19px;
@@ -522,6 +666,10 @@ a {
   margin: 0 auto;
 }
 
+/* 侧栏宽度仍写在这里（280px），没有做成配置项：
+   grid-template-columns 里两个轨道之间如果用 var()，Hugo 的 --minify
+   会把 var(...) 与后面 minmax(...) 之间必需的空格一并删掉
+   （变成 var(--x)minmax(0,1fr)），属于没必要冒的险。 */
 .content-grid {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
@@ -1087,19 +1235,33 @@ a {
   color: var(--text-soft);
 }
 
+/* 说明：这里用 flex 而不是 grid。
+   文章列用 flex-basis 撑到 --article-width、再用 max-width 封顶，
+   空间不够时由 flex-shrink 自动收窄；这样 articleWidth 配得再大
+   （哪怕超过 contentWidth）也不会把页面顶出横向滚动条。
+   没有目录时（toc: false 或正文无小标题）目录元素根本不渲染，
+   文章自然独占整行居中，不需要额外写 :has() 之类的分支。 */
 .article-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 860px) 250px;
-  gap: 26px;
+  display: flex;
+  gap: var(--article-gap);
   justify-content: center;
   align-items: start;
 }
 
 .article {
   position: relative;
+  flex: 1 1 var(--article-width);
+  max-width: var(--article-width);
   min-width: 0;
   overflow: hidden;
-  padding: 54px clamp(25px, 6vw, 72px) 64px;
+  /* 内边距拆成四条单边属性写，不用 padding 简写：
+     简写里如果夹了 var()，Hugo 的 --minify 会吃掉 var() 后面的空格
+     （变成 `54px var(--x)64px`）。大多数浏览器仍能解析，但没必要赌，
+     拆开写既避免这个隐患，也让「左右随配置、上下固定」这层意图更清楚。 */
+  padding-top: 54px;
+  padding-right: var(--article-pad-x);
+  padding-bottom: 64px;
+  padding-left: var(--article-pad-x);
   border-radius: var(--radius-xl);
 }
 
@@ -1153,7 +1315,12 @@ a {
 
 .article-cover {
   overflow: hidden;
-  margin: 35px calc(clamp(25px, 6vw, 72px) * -1) 38px;
+  /* 用负的左右外边距抵消 .article 的左右内边距，让封面图通栏显示。
+     同样拆成单边属性，理由同 .article 的 padding */
+  margin-top: 35px;
+  margin-right: calc(var(--article-pad-x) * -1);
+  margin-bottom: 38px;
+  margin-left: calc(var(--article-pad-x) * -1);
 }
 
 .article-cover img {
@@ -1172,7 +1339,7 @@ a {
 }
 
 .prose {
-  color: #283448;
+  color: var(--prose-text);
   font-family: var(--font-serif);
   font-size: 1.03rem;
   line-height: 1.85;
@@ -1189,7 +1356,7 @@ a {
 .prose h2,
 .prose h3,
 .prose h4 {
-  color: #152035;
+  color: var(--prose-heading);
   font-family: var(--font-sans);
   line-height: 1.28;
   scroll-margin-top: calc(var(--header-height) + 25px);
@@ -1199,7 +1366,7 @@ a {
   padding-bottom: 10px;
   margin: 2.4em 0 0.8em;
   font-size: 1.65rem;
-  border-bottom: 1px solid rgba(51, 65, 85, 0.12);
+  border-bottom: 1px solid var(--prose-border);
 }
 
 .prose h3 {
@@ -1224,8 +1391,8 @@ a {
 .prose blockquote {
   padding: 12px 22px;
   margin: 1.8em 0;
-  color: #42516a;
-  background: rgba(47, 125, 225, 0.08);
+  color: var(--prose-muted);
+  background: var(--prose-quote-bg);
   border-left: 4px solid var(--accent);
   border-radius: 0 12px 12px 0;
 }
@@ -1236,10 +1403,10 @@ a {
 
 .prose code {
   padding: 0.14em 0.38em;
-  color: #b42355;
+  color: var(--prose-code-inline);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.88em;
-  background: rgba(148, 163, 184, 0.18);
+  background: var(--prose-code-inline-bg);
   border-radius: 5px;
 }
 
@@ -1247,8 +1414,10 @@ a {
   overflow-x: auto;
   padding: 20px 22px;
   margin: 1.8em 0;
-  color: #dbeafe;
-  background: #0e1728 !important;
+  color: var(--code-fg);
+  /* !important 保留：chroma 高亮会给 pre/code 写内联或类级背景，
+     这里必须压过它，底色统一由 --code-bg 决定（可被代码样式覆盖） */
+  background: var(--code-bg) !important;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
   box-shadow: 0 10px 30px rgba(2, 8, 20, 0.18);
@@ -1274,11 +1443,11 @@ a {
 .prose td {
   padding: 10px 13px;
   text-align: left;
-  border: 1px solid rgba(51, 65, 85, 0.14);
+  border: 1px solid var(--prose-border);
 }
 
 .prose th {
-  background: rgba(47, 125, 225, 0.09);
+  background: var(--prose-th-bg);
 }
 
 .article-footer {
@@ -1289,7 +1458,7 @@ a {
   margin-top: 50px;
   color: var(--text-soft);
   font-size: 0.83rem;
-  border-top: 1px solid rgba(51, 65, 85, 0.12);
+  border-top: 1px solid var(--prose-border);
 }
 
 .article-footer a {
@@ -1301,6 +1470,8 @@ a {
 .toc {
   position: sticky;
   top: calc(var(--header-height) + 24px);
+  /* 目录不参与伸缩：宽度固定为 --toc-width，被压缩时优先牺牲文章列 */
+  flex: 0 0 var(--toc-width);
   max-height: calc(100vh - var(--header-height) - 48px);
   overflow-y: auto;
   padding: 20px;
@@ -1920,10 +2091,7 @@ a {
     display: none;
   }
 
-  .article-layout {
-    grid-template-columns: minmax(0, 820px);
-  }
-
+  /* 目录在这一档隐藏，文章列自动占满整行，上限仍是配置的 articleWidth */
   .toc {
     display: none;
   }
@@ -2131,18 +2299,17 @@ a {
     grid-row: auto;
   }
 
+  /* 小屏把内边距压到 22px 以内。用 min() 而不是直接覆盖变量：
+     这样 articlePadding 配得比 22px 更小时依然生效，配得更大时也不会挤爆屏幕 */
   .article {
-    padding: 36px 22px 46px;
+    --article-pad-x: min(var(--article-pad), 22px);
+    padding-top: 36px;
+    padding-bottom: 46px;
     border-radius: 22px;
   }
 
   .article-header h1 {
     font-size: clamp(2rem, 11vw, 3rem);
-  }
-
-  .article-cover {
-    margin-right: -22px;
-    margin-left: -22px;
   }
 
   .prose {

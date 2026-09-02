@@ -77,6 +77,10 @@
 
 - id: toggleTheme
   translation: 切换亮色 / 暗色主题
+- id: codeStyle
+  translation: 代码高亮样式
+- id: codeStyleCustom
+  translation: 默认
 - id: tag
   translation: 标签
 - id: category

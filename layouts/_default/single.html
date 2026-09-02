@@ -1,5 +1,15 @@
 {{ define "main" }}
-  <div class="article-layout">
+  {{- /*
+    单篇文章可以用 front matter 里的 articleWidth 覆盖站点配置，
+    方便给个别表格很宽的文章单独放宽；不写则继承 params.layout.articleWidth。
+    注意这里必须用 safeHTMLAttr 输出 style 属性：Go 模板自带的 style 属性过滤器
+    不认识 --article-width 这类自定义属性，走默认转义会被替换成 ZgotmplZ。
+  */ -}}
+  {{- $pageVars := slice -}}
+  {{- with .Params.articleWidth -}}
+    {{- $pageVars = $pageVars | append (printf "--article-width: %s;" (partial "css-length.html" .)) -}}
+  {{- end -}}
+  <div class="article-layout"{{ with $pageVars }}{{ printf " style=\"%s\"" (delimit . " ") | safeHTMLAttr }}{{ end }}>
     <article class="article glass-panel reveal">
       <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
       <header class="article-header">

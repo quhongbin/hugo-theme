@@ -1,0 +1,44 @@
+{{- /*
+  把站点配置 params.layout 下的宽度项输出成 CSS 变量，覆盖 main.css 里的默认值。
+
+  两个关键点：
+  1. 必须放在 main.css 之后加载（见 head.html）。
+     main.css 的 :root 里已经写了各变量的默认值，选择器优先级相同，
+     靠「后写的胜出」来覆盖，顺序反了配置就完全不生效。
+  2. 未配置的项不输出，保留 main.css 的默认值，
+     这样升级主题时不会因为配置缺失而样式塌掉。
+
+  可配置项（写在 hugo.yaml 的 params.layout 下，详见 README）：
+    contentWidth    站点内容区最大宽度（页眉 / 主体 / 页脚的容器）
+    articleWidth    文章正文列最大宽度
+    tocWidth        文章右侧目录栏宽度
+    articlePadding  文章卡片的左右内边距
+  每项都能写数字（自动补 px）或带单位的字符串（如 "60rem"）。
+
+  注意：这些变量在 main.css 里都只用在「单值属性」（width / flex / max-width / padding）
+  上。不要把它们放进 grid-template-columns 这类多值属性——Hugo 的 --minify
+  会删掉 var(...) 与后一个轨道之间必需的空格，把整条声明变成无效值。
+*/ -}}
+{{- $vars := slice -}}
+{{- with site.Params.layout -}}
+  {{- with .contentWidth -}}
+    {{- $vars = $vars | append (printf "--content-width: %s;" (partial "css-length.html" .)) -}}
+  {{- end -}}
+  {{- with .articleWidth -}}
+    {{- $vars = $vars | append (printf "--article-width: %s;" (partial "css-length.html" .)) -}}
+  {{- end -}}
+  {{- with .tocWidth -}}
+    {{- $vars = $vars | append (printf "--toc-width: %s;" (partial "css-length.html" .)) -}}
+  {{- end -}}
+  {{- with .articlePadding -}}
+    {{- $vars = $vars | append (printf "--article-pad: %s;" (partial "css-length.html" .)) -}}
+  {{- end -}}
+{{- end -}}
+{{- /*
+  这里必须走 safeHTML：Go 模板对 <style> 元素内容也有一套 CSS 白名单过滤，
+  而 --content-width 这类自定义属性不在白名单里，直接输出会被替换成 ZgotmplZ。
+  变量值已经过 css-length.html 的字符过滤，只剩数字和 CSS 单位字符，可以安全输出。
+*/ -}}
+{{- with $vars -}}
+  {{- printf "<style>:root { %s }</style>" (delimit . " ") | safeHTML -}}
+{{- end -}}

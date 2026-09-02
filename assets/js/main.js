@@ -338,4 +338,37 @@
     // 兼容旧浏览器
     mediaQuery.addListener(onSystemThemeChange);
   }
+
+  /* ---------- 代码高亮样式选择器（悬停太阳/月亮图标时展开） ---------- */
+
+  const CODE_STYLES = ["custom-theme", "macos", "github", "gruvbox"];
+  const codeStyleOptions = document.querySelectorAll("[data-code-style-option]");
+
+  const markActiveCodeStyle = (style) => {
+    codeStyleOptions.forEach((option) => {
+      const active = option.dataset.codeStyleOption === style;
+      option.classList.toggle("is-active", active);
+      option.setAttribute("aria-pressed", String(active));
+    });
+  };
+
+  const applyCodeStyle = (style) => {
+    if (!CODE_STYLES.includes(style)) style = "custom-theme";
+    // custom-theme 是默认样式：移除属性即恢复，不写入属性
+    if (style === "custom-theme") {
+      rootElement.removeAttribute("data-code-style");
+    } else {
+      rootElement.setAttribute("data-code-style", style);
+    }
+    markActiveCodeStyle(style);
+    try { localStorage.setItem("code-style", style); } catch (error) { /* 隐私模式忽略 */ }
+  };
+
+  if (codeStyleOptions.length) {
+    // 初始高亮当前生效的样式（与 head 里的恢复逻辑一致）
+    markActiveCodeStyle(rootElement.getAttribute("data-code-style") || "custom-theme");
+    codeStyleOptions.forEach((option) => {
+      option.addEventListener("click", () => applyCodeStyle(option.dataset.codeStyleOption));
+    });
+  }
 })();

@@ -1,0 +1,26 @@
+{{- /*
+  CSS 长度归一化：把 hugo.yaml 里配的值变成合法的 CSS 长度。
+
+  之所以需要它：
+  - 配置里写 `articleWidth: 900`（数字）时，直接输出成 `width: 900` 是无效 CSS，
+    缺单位。所以纯数字要自动补 px。
+  - 写成字符串的值（`"60rem"` / `"90%"` / `"clamp(20px, 5vw, 60px)"`）原样返回，
+    方便用相对单位做响应式。
+
+  实现上不判断 Go 类型，而是把值转成字符串后看它是不是「纯数字」：
+  YAML / TOML / JSON 配置解析出来的整数类型并不统一（int / int64 / uint64 / float64
+  都可能出现），按字符串判断更稳。
+
+  最后统一过滤掉 CSS 长度里不可能出现的字符（引号、分号、尖括号等），
+  避免配置值意外闭合 style 属性、造成 HTML 注入。
+
+  用法：{{ partial "css-length.html" 900 }}      -> "900px"
+        {{ partial "css-length.html" "60rem" }} -> "60rem"
+*/ -}}
+{{- $raw := default "" . -}}
+{{- $s := printf "%v" $raw -}}
+{{- if findRE "^[0-9]+(?:\\.[0-9]+)?$" $s -}}
+  {{- printf "%spx" $s -}}
+{{- else -}}
+  {{- replaceRE "[^0-9a-zA-Z%().,/*+\\- ]" "" $s -}}
+{{- end -}}

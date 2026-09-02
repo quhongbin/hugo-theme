@@ -76,6 +76,10 @@
   translation: Fetching today's quote
 - id: toggleTheme
   translation: Toggle light / dark theme
+- id: codeStyle
+  translation: Code highlight style
+- id: codeStyleCustom
+  translation: Default
 - id: tag
   translation: Tag
 - id: category
