@@ -16,6 +16,12 @@
         document.documentElement.setAttribute("data-theme",
           window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       }
+      // 代码高亮样式：同样在首屏前恢复，避免代码块颜色闪变。
+      // custom-theme 是默认样式（不设置属性），只有三种可选样式才写属性。
+      var codeStyle = localStorage.getItem("code-style");
+      if (codeStyle === "macos" || codeStyle === "github" || codeStyle === "gruvbox") {
+        document.documentElement.setAttribute("data-code-style", codeStyle);
+      }
     } catch (e) { /* 隐私模式静默忽略 */ }
   })();
 </script>
@@ -44,4 +50,12 @@
 
 {{ $style := resources.Get "css/main.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
+{{/* 代码高亮配色（macos / github / gruvbox，各含亮暗两套）。
+     必须排在 main.css 之后：它靠 :root[data-code-style] 覆盖 main.css 的
+     --code-bg / --code-fg，加载顺序反了会被 main.css 盖回去。 */}}
+{{ $codeThemes := resources.Get "css/code-themes.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $codeThemes.RelPermalink }}" integrity="{{ $codeThemes.Data.Integrity }}">
+{{/* 站点级宽度配置（params.layout）转成的 CSS 变量，必须紧跟在上面这条 link 之后，
+     才能覆盖 main.css :root 里的默认值；放在它之前会被 main.css 反向覆盖。 */}}
+{{ partial "css-vars.html" . | safeHTML }}
 {{ with site.Params.favicon }}<link rel="icon" href="{{ . | relURL }}">{{ end }}
