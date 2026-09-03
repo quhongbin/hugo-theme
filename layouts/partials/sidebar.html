@@ -1,3 +1,18 @@
+{{/*
+  sidebar.html — 列表 / 总览页左侧栏
+
+  结构：
+    1. 个人资料卡（头像、角色、站名、简介、社交）
+    2. 分类列表（原「标签云」已移除：标签改由分类项展开查看）
+
+  分类项交互（见 main.js 与 main.css 的 .category-tags）：
+    - PC：鼠标悬停分类项，该分类下的标签以浮层形式在右侧展开；
+    - 移动端：点按分类项，标签在下方内联下拉展开（不跳转，
+      跳转入口是下拉里的「查看该分类」链接）。
+
+  每个分类的标签统计：遍历该分类下的所有页面，取每页的 tags 词条，
+  按链接去重并累计「该分类内」的出现次数（不是全站次数），再按次数降序。
+*/}}
 <aside class="sidebar" aria-label="{{ i18n "profileAndTopics" }}">
   <section class="profile-card glass-panel reveal">
     <img src="{{ site.Params.avatar | default "images/avatar.webp" | relURL }}" alt="{{ site.Params.author }}" width="112" height="112">
@@ -15,29 +30,55 @@
     {{ end }}
   </section>
 
-  {{ with site.Taxonomies.tags }}
-    <section class="topic-card glass-panel reveal">
-      <div class="card-title-row">
-        <h2>{{ i18n "exploreTags" }}</h2>
-        <span>{{ len . }}</span>
-      </div>
-      <div class="tag-cloud">
-        {{ range first 12 .ByCount }}
-          <a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }} <small>{{ .Count }}</small></a>
-        {{ end }}
-      </div>
-    </section>
-  {{ end }}
-
   {{ with site.Taxonomies.categories }}
     <section class="topic-card glass-panel reveal">
-      <h2>{{ i18n "categories" }}</h2>
+      <div class="card-title-row">
+        <h2>{{ i18n "categories" }}</h2>
+        <span>{{ len . }}</span>
+      </div>
       <ul class="category-list">
         {{ range first 8 .ByCount }}
-          <li><a href="{{ .Page.RelPermalink }}"><span>{{ .Page.LinkTitle }}</span><small>{{ .Count }}</small></a></li>
+          {{ $category := . }}
+          <li class="category-item" data-category-item>
+            <a class="category-link" href="{{ $category.Page.RelPermalink }}" data-category-link>
+              <span>{{ $category.Page.LinkTitle }}</span><small>{{ $category.Count }}</small>
+            </a>
+
+            {{/*
+              该分类下的标签：key 用标签页的相对链接去重，
+              $tagCounts 存「分类内出现次数」，$tagTerms 存词条对象本身。
+              merge 返回新 dict，所以每次都要重新赋值。
+            */}}
+            {{ $tagCounts := dict }}
+            {{ $tagTerms := dict }}
+            {{ range $category.Pages }}
+              {{ range .GetTerms "tags" }}
+                {{ $key := .Page.RelPermalink }}
+                {{ $tagCounts = merge $tagCounts (dict $key (add (index $tagCounts $key | default 0) 1)) }}
+                {{ $tagTerms = merge $tagTerms (dict $key .) }}
+              {{ end }}
+            {{ end }}
+            {{ $tagItems := slice }}
+            {{ range $key, $count := $tagCounts }}
+              {{ $tagItems = $tagItems | append (dict "Page" (index $tagTerms $key).Page "Count" $count) }}
+            {{ end }}
+            {{ $tagItems = sort $tagItems "Count" "desc" }}
+
+            {{ with $tagItems }}
+              <div class="category-tags" data-category-tags>
+                <p class="category-tags-title">{{ i18n "categoryTags" | default "该分类下的标签" }}</p>
+                <ul class="category-tag-list">
+                  {{ range . }}
+                    <li><a href="{{ .Page.RelPermalink }}"><span>{{ .Page.LinkTitle }}</span><small>{{ .Count }}</small></a></li>
+                  {{ end }}
+                </ul>
+                {{/* 移动端点按分类只展开、不跳转，这里是进入分类页的入口 */}}
+                <a class="category-tags-all" href="{{ $category.Page.RelPermalink }}">{{ i18n "viewCategory" | default "查看该分类" }} →</a>
+              </div>
+            {{ end }}
+          </li>
         {{ end }}
       </ul>
     </section>
   {{ end }}
 </aside>
-

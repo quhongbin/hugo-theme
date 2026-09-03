@@ -1,0 +1,43 @@
+{{- /* math.html —— KaTeX 脚本与自动渲染初始化（仅启用数学渲染时输出）。
+      启用条件：站点级 params.math.enabled 为真，或当前页面 front matter 含 math: true。
+      两条渲染路径：
+        1) 行内 $...$ 与块级 $$...$$：由 auto-render 扫描正文自动处理。
+           注意 Goldmark 会把「反斜杠 + 标点」(如 \, \\ \{ \)) 当成 CommonMark 转义吃掉，
+           所以行内公式里的 \, 间距、\\ 换行会丢失——简单公式无影响，复杂公式请用第 2 条。
+        2) 围栏代码块 ```math 或 ```latex：由 layouts/_markup/render-codeblock-math.html
+           渲染成 <div class="katex-block" data-math>，这里再用 katex.render 渲染。
+           代码块内容是字面值（不经行内转义），反斜杠命令完整保留，适合多行/带间距公式。
+      版本固定 0.16.11；省略 integrity 以免哈希填错导致拒载。 */ -}}
+{{- $enabled := false -}}
+{{- with site.Params.math }}{{ if .enabled }}{{ $enabled = true }}{{ end }}{{ end -}}
+{{- if .Params.math }}{{ $enabled = true }}{{ end -}}
+{{- if $enabled -}}
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // 围栏 ```math / ```latex 块优先渲染（它不含 $ 定界符，auto-render 不会误处理）
+    if (typeof katex !== "undefined") {
+      document.querySelectorAll(".katex-block[data-math]").forEach(function (el) {
+        try {
+          katex.render(el.textContent, el, { displayMode: true, throwOnError: false });
+        } catch (e) { /* 渲染失败则保留原始 TeX，方便排查 */ }
+      });
+    }
+    // 正文里的 $...$ / $$...$$ 交给 auto-render
+    if (typeof renderMathInElement === "function") {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "\\[", right: "\\]", display: true },
+          { left: "$", right: "$", display: false },
+          { left: "\\(", right: "\\)", display: false }
+        ],
+        // 不在代码块 / 样式 / 脚本等标签里再渲染，避免把代码里的 $ 误当成公式
+        ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+        throwOnError: false
+      });
+    }
+  });
+</script>
+{{- end -}}

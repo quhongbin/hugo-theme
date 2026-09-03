@@ -1,0 +1,13 @@
+{{- /* math-head.html —— KaTeX 样式表（仅启用数学渲染时输出）。
+      启用条件与 partials/math.html 完全一致：站点级 params.math.enabled 为真，
+      或当前页面 front matter 含 math: true，二者任一即启用。
+      放在 <head> 里，让公式先以「纯文本」再被 JS 排版成风格的闪动尽量小。
+      KaTeX 版本固定为 0.16.11 以便复现；如需离线/自托管，把 dist 目录放进
+      static/ 并改成相对路径即可（下行的 crossorigin 也可一并去掉）。
+      注意：这里故意省略 integrity（SRI 哈希），避免哈希填错导致浏览器整段拒载。 */ -}}
+{{- $enabled := false -}}
+{{- with site.Params.math }}{{ if .enabled }}{{ $enabled = true }}{{ end }}{{ end -}}
+{{- if .Params.math }}{{ $enabled = true }}{{ end -}}
+{{- if $enabled -}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+{{- end -}}

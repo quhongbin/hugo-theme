@@ -1,0 +1,8 @@
+{{- /* render-codeblock-math.html
+  作用：把围栏代码块 ```math ... ``` 里的 LaTeX 原样交给 KaTeX 渲染。
+  为什么不用普通 $...$ 内联：Goldmark 会把「反斜杠 + 标点」(如 \, \\ \{ \}) 当成
+  CommonMark 转义吃掉，导致 \, 间距、\\ 换行、\{ \} 集合括号丢失。而代码块的内容
+  是字面值（不经行内转义），所以反斜杠被完整保留，适合多行公式 / 带间距命令的公式。
+  普通段落里的 $x^2$ / $$...$$ 仍由 KaTeX 的 auto-render 处理（见 partials/math.html）。
+*/ -}}
+<div class="katex-block" data-math>{{ .Inner }}</div>

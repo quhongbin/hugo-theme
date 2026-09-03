@@ -1,0 +1,5 @@
+{{- /* render-codeblock-latex.html
+  与 render-codeblock-math.html 等价，只是围栏信息串写成 ```latex 时也能命中。
+  代码块内容是字面值，反斜杠命令（\, \\ \{ \} 等）完整保留，交给 KaTeX 渲染。
+*/ -}}
+<div class="katex-block" data-math>{{ .Inner }}</div>
