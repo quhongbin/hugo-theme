@@ -1,10 +1,15 @@
 {{/*
   term-grid.html — 分类 / 标签的自适应栅格
 
-  用法：
-    {{ partial "term-grid.html" (dict "Terms" .Data.Terms) }}
+  两种用法：
+    1. {{ partial "term-grid.html" (dict "Terms" .Data.Terms) }}
+       Terms 是 Hugo 的 WeightedPages（term 列表），自动按文章数降序。
+    2. {{ partial "term-grid.html" (dict "Items" $items) }}
+       Items 是已经整理并排好序的 [{Page: 词条页, Count: 次数}]，
+       用于「某个分类下的标签」这类拿不到 WeightedPages 的场景
+       （/tags/ 页按分类分组时用这种方式，见 layouts/taxonomy/tag.html）。
 
-  Terms 为空时不输出任何内容，空状态由调用方处理。
+  两个参数都不传、或算出来为空时不输出任何内容，空状态由调用方处理。
 
   实现要点：
     卡片宽度跟随标题的「视觉宽度」——CJK / 全角字符记 2 个单位，
@@ -13,9 +18,17 @@
     让空隙被后续卡片回填。
 */}}
 
+{{ $items := slice }}
+{{ with .Items }}{{ $items = . }}{{ end }}
 {{ with .Terms }}
+  {{ range .ByCount }}
+    {{ $items = $items | append (dict "Page" .Page "Count" .Count) }}
+  {{ end }}
+{{ end }}
+
+{{ with $items }}
   <ul class="term-grid">
-    {{ range .ByCount }}
+    {{ range . }}
       {{ $title := .Page.LinkTitle }}
       {{ $runeCount := len (split $title "") }}
       {{/* CJK 汉字、假名、韩文、全角标点均按 2 个宽度单位计 */}}
