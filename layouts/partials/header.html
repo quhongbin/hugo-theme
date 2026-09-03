@@ -1,3 +1,23 @@
+{{/*
+  header.html — 站点页眉 + 分类全屏面板
+
+  分类入口集成在「文章」（posts）菜单项下，数据准备：
+  - $categories  当前语言的分类（taxonomy）列表
+  - $catLimit    下拉列表条数上限，读 params.categoriesMenu.limit，默认 6
+                 分类数 ≤ 上限：PC 悬停展开下拉列表，移动端点按展开
+                 分类数 > 上限：不渲染下拉，改开全屏卡片面板（见文件末尾 overlay）
+  - $postsURL    posts section 的链接，用于下拉/面板里的「全部文章」入口
+  - $catModal    range 循环内发现 posts 项且分类超限时置 true，
+                 循环外据此决定是否输出全屏面板
+*/}}
+{{ $categories := site.Taxonomies.categories }}
+{{ $catCount := len $categories }}
+{{ $catLimit := 6 }}
+{{ with site.Params.categoriesMenu }}{{ with .limit }}{{ $catLimit = . }}{{ end }}{{ end }}
+{{ $postsURL := "" }}
+{{ with site.GetPage "/posts" }}{{ $postsURL = .RelPermalink }}{{ end }}
+{{ $catModal := false }}
+
 <header class="site-header" data-site-header>
   <div class="header-inner">
     <a class="site-brand" href="{{ site.Home.RelPermalink }}" aria-label="{{ site.Title }}">
@@ -18,7 +38,45 @@
         <ul class="nav-menu">
           {{ range . }}
             {{ $active := or ($.IsMenuCurrent .Menu .) ($.HasMenuCurrent .Menu .) }}
-            <li><a href="{{ .URL }}"{{ if $active }} class="is-active" aria-current="page"{{ end }}>{{ .Name }}</a></li>
+            {{/*
+              识别「文章」菜单项：优先匹配 identifier: posts；
+              identifier 被改名时退化为「URL 与 posts section 相同」的判断。
+              注意 Go 模板的 and 不短路，所以嵌套 if 而不是并到一个 and 里，
+              避免 $postsURL 为空时把首页（URL 去掉 / 后也是空串）误判成 posts。
+            */}}
+            {{ $isPosts := eq (lower .Identifier) "posts" }}
+            {{ if and $postsURL .URL }}
+              {{ if eq (strings.TrimSuffix "/" .URL) (strings.TrimSuffix "/" $postsURL) }}
+                {{ $isPosts = true }}
+              {{ end }}
+            {{ end }}
+            {{ if and $isPosts (gt $catCount 0) }}
+              {{ $modal := gt $catCount $catLimit }}
+              {{ if $modal }}{{ $catModal = true }}{{ end }}
+              <li class="nav-item has-categories{{ if $modal }} has-categories-modal{{ end }}" data-categories-item>
+                <a href="{{ .URL }}"{{ if $active }} class="is-active" aria-current="page"{{ end }} data-categories-trigger aria-haspopup="{{ if $modal }}dialog{{ else }}true{{ end }}">
+                  {{ .Name }}
+                </a>
+                {{ if not $modal }}
+                  {{/* 分类数未超限：普通下拉列表。PC 悬停展开（纯 CSS），移动端点按展开（main.js） */}}
+                  <ul class="categories-dropdown">
+                    {{ with $postsURL }}
+                      <li class="categories-all"><a href="{{ . }}">{{ i18n "allPosts" | default "全部文章" }}</a></li>
+                    {{ end }}
+                    {{ range $categories.ByCount }}
+                      <li>
+                        <a href="{{ .Page.RelPermalink }}">
+                          <span class="cat-name">{{ .Page.LinkTitle }}</span>
+                          <span class="term-count">{{ .Count }}</span>
+                        </a>
+                      </li>
+                    {{ end }}
+                  </ul>
+                {{ end }}
+              </li>
+            {{ else }}
+              <li><a href="{{ .URL }}"{{ if $active }} class="is-active" aria-current="page"{{ end }}>{{ .Name }}</a></li>
+            {{ end }}
           {{ end }}
         </ul>
       {{ end }}
@@ -34,7 +92,7 @@
       {{ end }}
 
       {{/* 主题区：太阳/月亮按钮负责亮暗切换；鼠标悬停（或键盘聚焦）时
-           自动展开代码高亮样式选择器，移开即收起。 */}}
+           自动展开站点配色选择器（整页配色，不只是代码块），移开即收起。 */}}
       <div class="theme-picker">
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="{{ i18n "toggleTheme" | default "切换主题" }}" title="{{ i18n "toggleTheme" | default "切换主题" }}">
           <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true">
@@ -55,12 +113,22 @@
           </svg>
         </button>
 
-        <div class="code-style-menu" role="group" aria-label="{{ i18n "codeStyle" | default "代码高亮样式" }}">
-          <strong>{{ i18n "codeStyle" | default "代码高亮样式" }}</strong>
-          <button class="code-style-option" type="button" data-code-style-option="custom-theme">{{ i18n "codeStyleCustom" | default "默认" }}</button>
-          <button class="code-style-option" type="button" data-code-style-option="macos">macOS</button>
-          <button class="code-style-option" type="button" data-code-style-option="github">GitHub</button>
-          <button class="code-style-option" type="button" data-code-style-option="gruvbox">Gruvbox</button>
+        {{/* 配色选择器：4 个主题 × 亮/暗 = 8 个选项，按「亮色 / 暗色」分两组。
+             选中项同时写 data-palette 与 data-theme；data-palette-value="default" 代表
+             站点默认主题（即移除 data-palette 属性，走 main.css :root 的 custom-theme 配色）。
+             太阳/月亮按钮作为快速翻转保留（仅改 data-theme，配色跟随当前选中项）。 */}}
+        <div class="palette-menu" role="group" aria-label="{{ i18n "palette" | default "主题配色" }}">
+          <strong>{{ i18n "palette" | default "主题配色" }}</strong>
+          <div class="palette-group-label">{{ i18n "paletteModeLight" | default "亮色" }}</div>
+          <button class="palette-option" type="button" data-palette-value="default" data-palette-mode="light">{{ i18n "paletteDefaultLight" | default "站点默认 · 亮色" }}</button>
+          <button class="palette-option" type="button" data-palette-value="macos"   data-palette-mode="light">{{ i18n "paletteMacosLight"   | default "macOS · 亮色" }}</button>
+          <button class="palette-option" type="button" data-palette-value="github"  data-palette-mode="light">{{ i18n "paletteGithubLight"  | default "GitHub · 亮色" }}</button>
+          <button class="palette-option" type="button" data-palette-value="gruvbox" data-palette-mode="light">{{ i18n "paletteGruvboxLight" | default "Gruvbox · 亮色" }}</button>
+          <div class="palette-group-label">{{ i18n "paletteModeDark" | default "暗色" }}</div>
+          <button class="palette-option" type="button" data-palette-value="default" data-palette-mode="dark">{{ i18n "paletteDefaultDark" | default "站点默认 · 暗色" }}</button>
+          <button class="palette-option" type="button" data-palette-value="macos"   data-palette-mode="dark">{{ i18n "paletteMacosDark"   | default "macOS · 暗色" }}</button>
+          <button class="palette-option" type="button" data-palette-value="github"  data-palette-mode="dark">{{ i18n "paletteGithubDark"  | default "GitHub · 暗色" }}</button>
+          <button class="palette-option" type="button" data-palette-value="gruvbox" data-palette-mode="dark">{{ i18n "paletteGruvboxDark" | default "Gruvbox · 暗色" }}</button>
         </div>
       </div>
 
@@ -68,3 +136,34 @@
     </nav>
   </div>
 </header>
+
+{{/*
+  分类全屏面板（仅分类数超过 categoriesMenu.limit 时输出）。
+
+  为什么必须放在 </header> 外面：
+  .site-header 带 backdrop-filter，按 CSS 规范它会成为所有后代的包含块，
+  面板若写在 header 内部，position: fixed 就会相对页眉而不是视口定位，
+  inset 0 只能盖住页眉那一条。放在 body 级才能保证全屏覆盖。
+
+  亮/暗主题：背景用 --surface + backdrop-filter 虚化，卡片复用 term-grid
+  的 glass-panel 样式，颜色全部走主题变量，无需额外的暗色覆盖。
+*/}}
+{{ if $catModal }}
+  <div class="categories-overlay" data-categories-overlay role="dialog" aria-modal="true" aria-label="{{ i18n "categories" }}" hidden>
+    <div class="categories-overlay-inner">
+      <div class="categories-overlay-head">
+        <strong>{{ i18n "categories" }}</strong>
+        {{ with $postsURL }}
+          <a class="categories-all-link" href="{{ . }}">
+            {{ i18n "allPosts" | default "全部文章" }}
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        {{ end }}
+        <button class="categories-close" type="button" data-categories-close aria-label="{{ i18n "closeCategories" | default "关闭分类面板" }}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      {{ partial "term-grid.html" (dict "Terms" $categories) }}
+    </div>
+  </div>
+{{ end }}
