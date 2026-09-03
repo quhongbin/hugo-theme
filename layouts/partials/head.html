@@ -16,11 +16,11 @@
         document.documentElement.setAttribute("data-theme",
           window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       }
-      // 代码高亮样式：同样在首屏前恢复，避免代码块颜色闪变。
-      // custom-theme 是默认样式（不设置属性），只有三种可选样式才写属性。
-      var codeStyle = localStorage.getItem("code-style");
-      if (codeStyle === "macos" || codeStyle === "github" || codeStyle === "gruvbox") {
-        document.documentElement.setAttribute("data-code-style", codeStyle);
+      // 站点配色方案：同样在首屏前恢复，避免整页颜色闪变。
+      // 默认主题（custom-theme）不设置属性，只有三种可选配色才写 data-palette。
+      var palette = localStorage.getItem("site-palette");
+      if (palette === "macos" || palette === "github" || palette === "gruvbox") {
+        document.documentElement.setAttribute("data-palette", palette);
       }
     } catch (e) { /* 隐私模式静默忽略 */ }
   })();
@@ -50,11 +50,22 @@
 
 {{ $style := resources.Get "css/main.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
-{{/* 代码高亮配色（macos / github / gruvbox，各含亮暗两套）。
-     必须排在 main.css 之后：它靠 :root[data-code-style] 覆盖 main.css 的
-     --code-bg / --code-fg，加载顺序反了会被 main.css 盖回去。 */}}
+{{/* 站点配色方案（macos / github / gruvbox），每个主题一个文件、各含亮暗两套，
+     打包成一个 CSS 输出：所有规则都带 :root[data-palette="…"] 前缀，互不冲突。
+     加载顺序其实不影响生效（属性选择器优先级高于 main.css 的 :root），
+     但按约定仍排在 main.css 之后，便于阅读与排查。 */}}
+{{ $paletteFiles := slice "css/themes/macos.css" "css/themes/github.css" "css/themes/gruvbox.css" }}
+{{ $paletteResources := slice }}
+{{ range $paletteFiles }}
+  {{ $paletteResources = $paletteResources | append (resources.Get .) }}
+{{ end }}
+{{ $palettes := resources.Concat "css/site-palettes.css" $paletteResources | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $palettes.RelPermalink }}" integrity="{{ $palettes.Data.Integrity }}">
+{{/* chroma 分词着色规则（全主题共用，颜色取 themes/ 文件注入的 --tok-* 变量）。 */}}
 {{ $codeThemes := resources.Get "css/code-themes.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $codeThemes.RelPermalink }}" integrity="{{ $codeThemes.Data.Integrity }}">
+{{/* 数学公式样式（KaTeX）：仅在启用时输出 <link>，由 partials/math-head.html 判定。 */}}
+{{ partial "math-head.html" . }}
 {{/* 站点级宽度配置（params.layout）转成的 CSS 变量，必须紧跟在上面这条 link 之后，
      才能覆盖 main.css :root 里的默认值；放在它之前会被 main.css 反向覆盖。 */}}
 {{ partial "css-vars.html" . | safeHTML }}

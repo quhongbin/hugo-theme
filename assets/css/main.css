@@ -42,9 +42,9 @@
   --prose-code-inline-bg: rgba(148, 163, 184, 0.18);
   --prose-border: rgba(51, 65, 85, 0.12);
   --prose-th-bg: rgba(47, 125, 225, 0.09);
-  /* 代码块底色 / 文字色。这里是 custom-theme 的默认值（深蓝底、浅字），
-     选择 macos / github / gruvbox 时由 code-themes.css 里的
-     :root[data-code-style="…"] 覆盖。 */
+  /* 代码块底色 / 文字色。这里是默认主题（custom-theme）的值（深蓝底、浅字），
+     选择 macos / github / gruvbox 时由 assets/css/themes/ 下对应主题文件里的
+     :root[data-palette="…"] 整页覆盖（含 --code-bg / --code-fg 与页面配色）。 */
   --code-bg: #0e1728;
   --code-fg: #dbeafe;
 
@@ -468,21 +468,22 @@ a {
   transform: rotate(90deg) scale(0.6);
 }
 
-/* ---------- 代码高亮样式选择器 ----------
+/* ---------- 站点配色选择器 ----------
    包裹太阳/月亮按钮；鼠标悬停或键盘聚焦到该区域时，
-   下方的样式菜单自动显现，移开即收起。 */
+   下方的配色菜单自动显现，移开即收起。
+   菜单切换的是「整页配色」（data-palette），不只是代码块颜色。 */
 .theme-picker {
   position: relative;
 }
 
-.code-style-menu {
+.palette-menu {
   position: absolute;
   z-index: 120;
   top: calc(100% + 10px);
   right: 0;
   display: grid;
   gap: 3px;
-  width: 168px;
+  width: 188px;
   padding: 10px;
   background: var(--surface-strong);
   border: 1px solid var(--line);
@@ -495,14 +496,14 @@ a {
 }
 
 /* 悬停 / 键盘聚焦时自动展开 */
-.theme-picker:hover .code-style-menu,
-.theme-picker:focus-within .code-style-menu {
+.theme-picker:hover .palette-menu,
+.theme-picker:focus-within .palette-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
 }
 
-.code-style-menu strong {
+.palette-menu strong {
   padding: 2px 8px 6px;
   color: var(--text-soft);
   font-size: 0.7rem;
@@ -511,7 +512,25 @@ a {
   text-transform: uppercase;
 }
 
-.code-style-option {
+/* 「亮色 / 暗色」两组的小标题，与上面的菜单主标题区分 */
+.palette-group-label {
+  padding: 6px 8px 2px;
+  margin-top: 4px;
+  color: var(--text-soft);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-top: 1px solid var(--line);
+}
+
+.palette-group-label:first-of-type {
+  margin-top: 0;
+  padding-top: 2px;
+  border-top: 0;
+}
+
+.palette-option {
   padding: 7px 10px;
   color: var(--text);
   font-size: 0.82rem;
@@ -524,32 +543,254 @@ a {
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.code-style-option:hover {
+.palette-option:hover {
   background: var(--accent-soft);
 }
 
-.code-style-option.is-active {
+.palette-option.is-active {
   color: var(--accent-strong);
   background: var(--accent-soft);
 }
 
 /* 移动端：导航变成下拉面板，绝对定位菜单会被面板的滚动容器裁剪，
-   改为普通流内展开（点按太阳/月亮按钮聚焦后同样会显现） */
+   改为普通流内展开（点按太阳/月亮按钮聚焦后同样会显现）。
+   菜单现在有 8 个选项 + 2 个分组标题，高度较大，加 max-height 滚动兜底。 */
 @media (max-width: 860px) {
-  .code-style-menu {
+  .palette-menu {
     position: static;
     display: none;
     width: 100%;
     margin-top: 6px;
+    max-height: 240px;
+    overflow-y: auto;
     opacity: 1;
     visibility: visible;
     transform: none;
     box-shadow: none;
   }
 
-  .theme-picker:hover .code-style-menu,
-  .theme-picker:focus-within .code-style-menu {
+  .theme-picker:hover .palette-menu,
+  .theme-picker:focus-within .palette-menu {
     display: grid;
+  }
+}
+
+/* ---------- 文章分类菜单 ----------
+   「文章」导航项下集成的分类入口（分类数 ≤ categoriesMenu.limit 时渲染）。
+   PC：悬停或键盘聚焦展开下拉，移开收起（纯 CSS，与 .theme-picker 同一套路）；
+   移动端：点按「文章」在导航面板内展开（由 main.js 切换 .is-open）。
+   分类数超限时不渲染下拉，改用下方的全屏面板（.categories-overlay）。 */
+
+.has-categories {
+  position: relative;
+}
+
+.categories-dropdown {
+  position: absolute;
+  z-index: 120;
+  top: calc(100% + 8px);
+  left: 50%;
+  min-width: 210px;
+  padding: 8px;
+  margin: 0;
+  list-style: none;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+
+.has-categories:hover .categories-dropdown,
+.has-categories:focus-within .categories-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+/* 下拉项也是 .nav-menu 内的 a，会继承顶层导航的样式，
+   这里按列表形态重写字号、布局与颜色（颜色走变量，暗色自动适配） */
+.categories-dropdown a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.categories-dropdown a:hover {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  transform: none;
+}
+
+.categories-dropdown .cat-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* 首项「全部文章」：移动端点按「文章」只展开列表不跳转，
+   /posts 页面改由这个入口进入 */
+.categories-all {
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid var(--line);
+}
+
+.categories-all a {
+  color: var(--accent-strong);
+}
+
+/* ---------- 分类全屏面板（分类数超过 categoriesMenu.limit 时替代下拉） ----------
+   由 main.js 控制开合：PC 悬停「文章」延时展开，移动端点按展开。
+   背景 = --surface 半透明 + backdrop-filter 虚化，亮/暗主题自动适配。
+   注意 top 必须单属性写 var()：inset 这类多值简写里夹 var() 会被
+   Hugo --minify 删掉必需的空格（与 grid-template-columns 的坑相同）。 */
+.categories-overlay {
+  position: fixed;
+  z-index: 150;
+  top: var(--header-height);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding-top: clamp(24px, 6vh, 64px);
+  padding-right: 20px;
+  padding-bottom: 40px;
+  padding-left: 20px;
+  overflow-y: auto;
+  background: var(--surface);
+  backdrop-filter: blur(26px) saturate(135%);
+  -webkit-backdrop-filter: blur(26px) saturate(135%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.categories-overlay[hidden] {
+  display: none;
+}
+
+.categories-overlay.is-open {
+  opacity: 1;
+}
+
+/* 面板打开时锁定页面滚动（JS 在 body 上切换该类） */
+body.categories-open {
+  overflow: hidden;
+}
+
+.categories-overlay-inner {
+  width: min(100%, var(--content-width));
+  margin: 0 auto;
+  transform: translateY(12px);
+  transition: transform 0.22s ease;
+}
+
+.categories-overlay.is-open .categories-overlay-inner {
+  transform: none;
+}
+
+.categories-overlay-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.categories-overlay-head strong {
+  font-size: 1.15rem;
+}
+
+.categories-all-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent-strong);
+  font-size: 0.88rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.categories-all-link:hover {
+  text-decoration: underline;
+}
+
+.categories-all-link svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.categories-close {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  margin-left: auto;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  cursor: pointer;
+  place-items: center;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.categories-close:hover {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  transform: translateY(-2px);
+}
+
+.categories-close svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+/* 移动端：下拉改为导航面板内联展开；全屏面板覆盖整个视口（含页眉） */
+@media (max-width: 860px) {
+  /* 必须连 hover / focus-within 一起覆盖：移动端点按后触发器仍持有焦点，
+     不覆盖的话 transform: translate(-50%, 0) 会把流内的下拉顶歪 */
+  .has-categories:hover .categories-dropdown,
+  .has-categories:focus-within .categories-dropdown,
+  .categories-dropdown {
+    position: static;
+    min-width: 0;
+    padding: 4px 0 6px 14px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .categories-dropdown {
+    display: none;
+  }
+
+  .has-categories.is-open .categories-dropdown {
+    display: block;
+  }
+
+  .categories-all {
+    border-bottom-color: rgba(51, 65, 85, 0.1);
+  }
+
+  .categories-overlay {
+    top: 0;
   }
 }
 
@@ -920,25 +1161,132 @@ a {
 }
 
 .category-list li + li {
-  border-top: 1px solid rgba(51, 65, 85, 0.09);
+  border-top: 1px solid var(--line);
 }
 
-.category-list a {
+/* 分类链接本身（避免后代选择器误伤浮层里的标签 chip）。
+   颜色全部走主题变量，确保暗色模式可读（旧版用了硬编码色）。 */
+.category-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 9px 2px;
-  color: #3f4a5e;
+  color: var(--text);
   font-size: 0.84rem;
   text-decoration: none;
 }
 
-.category-list a:hover {
+.category-link:hover {
   color: var(--accent-strong);
 }
 
-.category-list small {
+.category-link small {
   color: var(--text-soft);
+}
+
+/* ---------- 分类项悬停 / 点按展开的标签面板 ----------
+   PC：鼠标悬停分类项，该分类下的标签作为玻璃浮层浮在右侧（覆盖正文区）；
+   移动端（≤860px）：浮层改为点按后内联下拉，由上方的 .is-open 切换。 */
+.category-item {
+  position: relative;
+}
+
+.category-tags {
+  position: absolute;
+  z-index: 40;
+  top: -8px;
+  left: calc(100% + 12px);
+  width: 248px;
+  padding: 14px 16px;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+
+/* PC：悬停或键盘聚焦到分类项即展开浮层 */
+.category-item:hover .category-tags,
+.category-item:focus-within .category-tags {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+.category-tags-title {
+  margin: 0 0 8px;
+  color: var(--text-soft);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.category-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.category-tag-list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  color: var(--text);
+  font-size: 0.78rem;
+  text-decoration: none;
+  background: var(--accent-soft);
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.category-tag-list a:hover {
+  color: #fff;
+  background: var(--accent-strong);
+}
+
+.category-tag-list small {
+  color: inherit;
+  opacity: 0.7;
+  font-size: 0.68rem;
+}
+
+.category-tags-all {
+  display: inline-block;
+  margin-top: 11px;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.category-tags-all:hover {
+  text-decoration: underline;
+}
+
+/* 移动端：单列布局，浮层改为点按后内联下拉（JS 给 .category-item 加 .is-open） */
+@media (max-width: 860px) {
+  .category-tags {
+    position: static;
+    display: none;
+    width: 100%;
+    margin: 6px 0 2px;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .category-item.is-open .category-tags {
+    display: block;
+  }
 }
 
 .content-column {
@@ -1459,6 +1807,15 @@ a {
   color: var(--text-soft);
   font-size: 0.83rem;
   border-top: 1px solid var(--prose-border);
+}
+
+/* === 数学公式（KaTeX）===
+   围栏 ```math / ```latex 渲染出的容器：块级公式、可横向滚动避免宽公式撑出页面。
+   行内 $...$ 由 KaTeX 自动渲染成 .katex（inline），无需额外样式。 */
+.katex-block {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.4rem 0;
 }
 
 .article-footer a {

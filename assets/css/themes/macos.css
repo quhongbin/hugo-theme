@@ -1,0 +1,131 @@
+/* =====================================================================
+   站点配色：macOS（Xcode 风格）
+   ---------------------------------------------------------------------
+   本文件定义 macOS 主题的「全部颜色」，一个文件自成一套：
+     第一段  亮色（白天）整页配色 + 代码高亮配色
+     第二段  暗色（黑夜）整页配色 + 代码高亮配色
+
+   生效机制：
+   - head.html 的内联脚本 / 页眉配色选择器会在 <html> 上写
+     data-palette="macos"，本文件的选择器随即命中，覆盖 main.css :root
+     里的默认变量（:root[data-palette] 优先级高于 :root，顺序无关）。
+   - 亮 / 暗切换由 data-theme="dark" 决定（页眉的太阳/月亮按钮），
+     与配色方案正交：8 种组合（4 主题 × 2 模式）互不干扰。
+   - 只覆盖「颜色类」变量；布局变量（--content-width 等）与背景图
+     （--bg-image）保持 main.css 默认，主题之间共享。
+   - --log-l1~l4（贡献日历绿色阶梯）为全主题共用，见 main.css。
+
+   main.css 里可被覆盖的变量全集见 :root 顶部的注释；
+   新增变量时记得亮 / 暗两段都要给值，否则另一模式会回落到默认色。
+   ===================================================================== */
+
+/* ============================ 亮色 ============================ */
+
+:root[data-palette="macos"] {
+  /* 页面基底与玻璃表面 */
+  --bg: #f5f5f7;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-strong: rgba(255, 255, 255, 0.94);
+  /* 文字 */
+  --text: #1d1d1f;
+  --text-soft: #6e6e73;
+  /* 玻璃描边与强调色（Apple 系统蓝） */
+  --line: rgba(255, 255, 255, 0.65);
+  --accent: #0071e3;
+  --accent-strong: #0060c9;
+  --accent-soft: rgba(0, 113, 227, 0.12);
+  /* 阴影与背景图着色（--bg-tint-a 光晕 / --bg-tint-b 边缘压暗） */
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.22);
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.14);
+  --bg-tint-a: rgba(0, 113, 227, 0.14);
+  --bg-tint-b: rgba(29, 29, 31, 0.42);
+
+  /* 日志：0 级格子与分类徽标（日记 = 橙，知识 = 主题蓝） */
+  --log-l0: rgba(29, 29, 31, 0.09);
+  --log-diary-bg: rgba(255, 159, 10, 0.18);
+  --log-diary-fg: #934f00;
+  --log-knowledge-bg: rgba(0, 113, 227, 0.14);
+  --log-knowledge-fg: #0060c9;
+
+  /* 文章正文（.prose）配色 */
+  --prose-text: #333336;
+  --prose-heading: #1d1d1f;
+  --prose-muted: #6e6e73;
+  --prose-quote-bg: rgba(0, 113, 227, 0.08);
+  --prose-code-inline: #d70015;
+  --prose-code-inline-bg: rgba(118, 118, 128, 0.16);
+  --prose-border: rgba(60, 60, 67, 0.14);
+  --prose-th-bg: rgba(0, 113, 227, 0.09);
+
+  /* 代码块底色 / 文字 / 描边 */
+  --code-bg: #ffffff;
+  --code-fg: #262626;
+  --code-border: rgba(60, 60, 67, 0.18);
+  /* 代码分词着色（Xcode 亮色），变量含义见 code-themes.css 底部规则 */
+  --tok-comment: #536c67;
+  --tok-keyword: #ad3da4;
+  --tok-type: #4b21b0;
+  --tok-string: #d12f1b;
+  --tok-number: #272ad8;
+  --tok-function: #0f68a0;
+  --tok-builtin: #78492a;
+  --tok-attribute: #947100;
+  --tok-operator: #262626;
+  --tok-punctuation: #262626;
+  --tok-name: #262626;
+  --tok-inserted: #3e8087;
+  --tok-deleted: #d12f1b;
+  --tok-error: #d12f1b;
+}
+
+/* ============================ 暗色 ============================ */
+
+:root[data-theme="dark"][data-palette="macos"] {
+  --bg: #161617;
+  --surface: rgba(28, 28, 30, 0.78);
+  --surface-strong: rgba(44, 44, 46, 0.92);
+  --text: #f5f5f7;
+  --text-soft: #98989d;
+  --line: rgba(255, 255, 255, 0.14);
+  --accent: #0a84ff;
+  --accent-strong: #409cff;
+  --accent-soft: rgba(10, 132, 255, 0.2);
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.4);
+  --bg-tint-a: rgba(10, 132, 255, 0.16);
+  --bg-tint-b: rgba(0, 0, 0, 0.55);
+
+  --log-l0: rgba(255, 255, 255, 0.09);
+  --log-diary-bg: rgba(255, 159, 10, 0.2);
+  --log-diary-fg: #ffb340;
+  --log-knowledge-bg: rgba(10, 132, 255, 0.2);
+  --log-knowledge-fg: #409cff;
+
+  --prose-text: #e8e8ed;
+  --prose-heading: #f5f5f7;
+  --prose-muted: #98989d;
+  --prose-quote-bg: rgba(10, 132, 255, 0.14);
+  --prose-code-inline: #ff6482;
+  --prose-code-inline-bg: rgba(255, 255, 255, 0.14);
+  --prose-border: rgba(255, 255, 255, 0.14);
+  --prose-th-bg: rgba(10, 132, 255, 0.16);
+
+  --code-bg: #262629;
+  --code-fg: #d6d6dd;
+  --code-border: rgba(255, 255, 255, 0.12);
+  /* Xcode 暗色分词 */
+  --tok-comment: #7f8c98;
+  --tok-keyword: #fc5fa3;
+  --tok-type: #5dd8ff;
+  --tok-string: #fc6a5d;
+  --tok-number: #d0bf69;
+  --tok-function: #67b7a4;
+  --tok-builtin: #a167ab;
+  --tok-attribute: #a167ab;
+  --tok-operator: #d6d6dd;
+  --tok-punctuation: #d6d6dd;
+  --tok-name: #d6d6dd;
+  --tok-inserted: #67b7a4;
+  --tok-deleted: #fc6a5d;
+  --tok-error: #fc6a5d;
+}

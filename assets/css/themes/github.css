@@ -1,0 +1,115 @@
+/* =====================================================================
+   站点配色：GitHub 风格
+   ---------------------------------------------------------------------
+   文件结构与生效机制同 themes/macos.css（此处不再重复注释）：
+   <html data-palette="github"> 命中本文件，亮 / 暗由 data-theme 决定。
+   ===================================================================== */
+
+/* ============================ 亮色 ============================ */
+
+:root[data-palette="github"] {
+  /* 页面基底与玻璃表面（GitHub 画布灰 #f6f8fa） */
+  --bg: #f6f8fa;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-strong: rgba(255, 255, 255, 0.95);
+  --text: #1f2328;
+  --text-soft: #59636e;
+  --line: rgba(255, 255, 255, 0.65);
+  /* GitHub 品牌蓝 */
+  --accent: #0969da;
+  --accent-strong: #0550ae;
+  --accent-soft: rgba(9, 105, 218, 0.12);
+  --shadow: 0 22px 60px rgba(31, 35, 40, 0.2);
+  --shadow-soft: 0 12px 30px rgba(31, 35, 40, 0.12);
+  --bg-tint-a: rgba(9, 105, 218, 0.12);
+  --bg-tint-b: rgba(31, 35, 40, 0.4);
+
+  /* 日志徽标（日记 = GitHub 黄，知识 = 品牌蓝） */
+  --log-l0: rgba(31, 35, 40, 0.08);
+  --log-diary-bg: rgba(154, 103, 0, 0.14);
+  --log-diary-fg: #9a6700;
+  --log-knowledge-bg: rgba(9, 105, 218, 0.12);
+  --log-knowledge-fg: #0550ae;
+
+  /* 文章正文（.prose）配色 */
+  --prose-text: #24292f;
+  --prose-heading: #1f2328;
+  --prose-muted: #59636e;
+  --prose-quote-bg: rgba(9, 105, 218, 0.08);
+  --prose-code-inline: #cf222e;
+  --prose-code-inline-bg: rgba(175, 184, 193, 0.2);
+  --prose-border: rgba(208, 215, 222, 0.9);
+  --prose-th-bg: rgba(9, 105, 218, 0.08);
+
+  /* 代码块 + 分词（GitHub Light） */
+  --code-bg: #f6f8fa;
+  --code-fg: #1f2328;
+  --code-border: rgba(31, 35, 40, 0.15);
+  --tok-comment: #59636e;
+  --tok-keyword: #cf222e;
+  --tok-type: #953800;
+  --tok-string: #0a3069;
+  --tok-number: #0550ae;
+  --tok-function: #8250df;
+  --tok-builtin: #0550ae;
+  --tok-attribute: #116329;
+  --tok-operator: #cf222e;
+  --tok-punctuation: #1f2328;
+  --tok-name: #1f2328;
+  --tok-inserted: #116329;
+  --tok-deleted: #82071e;
+  --tok-error: #82071e;
+}
+
+/* ============================ 暗色 ============================ */
+
+:root[data-theme="dark"][data-palette="github"] {
+  /* GitHub Dark 画布 #0d1117 */
+  --bg: #0d1117;
+  --surface: rgba(13, 17, 23, 0.8);
+  --surface-strong: rgba(22, 27, 34, 0.93);
+  --text: #e6edf3;
+  --text-soft: #8b949e;
+  --line: rgba(240, 246, 252, 0.12);
+  --accent: #4493f8;
+  --accent-strong: #2f81f7;
+  --accent-soft: rgba(68, 147, 248, 0.16);
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.4);
+  --bg-tint-a: rgba(68, 147, 248, 0.14);
+  --bg-tint-b: rgba(1, 4, 9, 0.55);
+
+  --log-l0: rgba(255, 255, 255, 0.09);
+  --log-diary-bg: rgba(210, 153, 34, 0.18);
+  --log-diary-fg: #d29922;
+  --log-knowledge-bg: rgba(68, 147, 248, 0.16);
+  --log-knowledge-fg: #4493f8;
+
+  --prose-text: #c9d4de;
+  --prose-heading: #e6edf3;
+  --prose-muted: #8b949e;
+  --prose-quote-bg: rgba(68, 147, 248, 0.12);
+  --prose-code-inline: #ffa198;
+  --prose-code-inline-bg: rgba(110, 118, 129, 0.24);
+  --prose-border: rgba(240, 246, 252, 0.14);
+  --prose-th-bg: rgba(68, 147, 248, 0.14);
+
+  /* GitHub Dark Dimmed 代码块 + 分词 */
+  --code-bg: #0d1117;
+  --code-fg: #e6edf3;
+  --code-border: rgba(255, 255, 255, 0.12);
+  --tok-comment: #8b949e;
+  --tok-keyword: #ff7b72;
+  --tok-type: #ffa657;
+  --tok-string: #a5d6ff;
+  --tok-number: #79c0ff;
+  --tok-function: #d2a8ff;
+  --tok-builtin: #79c0ff;
+  --tok-attribute: #7ee787;
+  --tok-operator: #ff7b72;
+  --tok-punctuation: #e6edf3;
+  --tok-name: #e6edf3;
+  --tok-inserted: #7ee787;
+  --tok-deleted: #ffa198;
+  --tok-error: #ffa198;
+}

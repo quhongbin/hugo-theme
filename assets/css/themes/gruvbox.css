@@ -1,0 +1,116 @@
+/* =====================================================================
+   站点配色：Gruvbox（复古暖色）
+   ---------------------------------------------------------------------
+   文件结构与生效机制同 themes/macos.css（此处不再重复注释）：
+   <html data-palette="gruvbox"> 命中本文件，亮 / 暗由 data-theme 决定。
+   Gruvbox 的特点是低饱和暖底 + 高对比点缀色，强调色取标志性的橙。
+   ===================================================================== */
+
+/* ============================ 亮色 ============================ */
+
+:root[data-palette="gruvbox"] {
+  /* 页面基底与玻璃表面（gruvbox light0 #f2e5bc / #fbf1c7） */
+  --bg: #f2e5bc;
+  --surface: rgba(251, 241, 199, 0.82);
+  --surface-strong: rgba(251, 241, 199, 0.94);
+  --text: #3c3836;
+  --text-soft: #7c6f64;
+  --line: rgba(255, 250, 227, 0.7);
+  /* 标志性橙 */
+  --accent: #d65d0e;
+  --accent-strong: #af3a03;
+  --accent-soft: rgba(214, 93, 14, 0.14);
+  --shadow: 0 22px 60px rgba(60, 56, 54, 0.25);
+  --shadow-soft: 0 12px 30px rgba(60, 56, 54, 0.16);
+  --bg-tint-a: rgba(214, 93, 14, 0.14);
+  --bg-tint-b: rgba(60, 56, 54, 0.42);
+
+  /* 日志徽标（日记 = gruvbox 黄，知识 = gruvbox 青） */
+  --log-l0: rgba(60, 56, 54, 0.1);
+  --log-diary-bg: rgba(181, 118, 20, 0.2);
+  --log-diary-fg: #8f5f08;
+  --log-knowledge-bg: rgba(7, 102, 120, 0.14);
+  --log-knowledge-fg: #076678;
+
+  /* 文章正文（.prose）配色 */
+  --prose-text: #453f3c;
+  --prose-heading: #282828;
+  --prose-muted: #7c6f64;
+  --prose-quote-bg: rgba(214, 93, 14, 0.1);
+  --prose-code-inline: #9d0006;
+  --prose-code-inline-bg: rgba(60, 56, 54, 0.12);
+  --prose-border: rgba(60, 56, 54, 0.16);
+  --prose-th-bg: rgba(214, 93, 14, 0.1);
+
+  /* 代码块 + 分词（Gruvbox Light） */
+  --code-bg: #fbf1c7;
+  --code-fg: #3c3836;
+  --code-border: rgba(60, 56, 54, 0.2);
+  --tok-comment: #928374;
+  --tok-keyword: #9d0006;
+  --tok-type: #b57614;
+  --tok-string: #79740e;
+  --tok-number: #8f3f71;
+  --tok-function: #427b58;
+  --tok-builtin: #076678;
+  --tok-attribute: #427b58;
+  --tok-operator: #af3a03;
+  --tok-punctuation: #3c3836;
+  --tok-name: #3c3836;
+  --tok-inserted: #79740e;
+  --tok-deleted: #9d0006;
+  --tok-error: #9d0006;
+}
+
+/* ============================ 暗色 ============================ */
+
+:root[data-theme="dark"][data-palette="gruvbox"] {
+  /* gruvbox dark bg0 #282828 */
+  --bg: #282828;
+  --surface: rgba(40, 40, 40, 0.82);
+  --surface-strong: rgba(50, 48, 47, 0.93);
+  --text: #ebdbb2;
+  --text-soft: #bdae93;
+  --line: rgba(235, 219, 178, 0.14);
+  --accent: #fe8019;
+  --accent-strong: #d65d0e;
+  --accent-soft: rgba(254, 128, 25, 0.18);
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.4);
+  --bg-tint-a: rgba(254, 128, 25, 0.13);
+  --bg-tint-b: rgba(20, 19, 18, 0.55);
+
+  --log-l0: rgba(235, 219, 178, 0.1);
+  --log-diary-bg: rgba(250, 189, 47, 0.18);
+  --log-diary-fg: #fabd2f;
+  --log-knowledge-bg: rgba(131, 165, 152, 0.18);
+  --log-knowledge-fg: #83a598;
+
+  --prose-text: #d5c4a1;
+  --prose-heading: #ebdbb2;
+  --prose-muted: #bdae93;
+  --prose-quote-bg: rgba(254, 128, 25, 0.12);
+  --prose-code-inline: #fb4934;
+  --prose-code-inline-bg: rgba(235, 219, 178, 0.14);
+  --prose-border: rgba(235, 219, 178, 0.16);
+  --prose-th-bg: rgba(254, 128, 25, 0.12);
+
+  /* 代码块 + 分词（Gruvbox Dark） */
+  --code-bg: #282828;
+  --code-fg: #ebdbb2;
+  --code-border: rgba(255, 255, 255, 0.12);
+  --tok-comment: #928374;
+  --tok-keyword: #fb4934;
+  --tok-type: #fabd2f;
+  --tok-string: #b8bb26;
+  --tok-number: #d3869b;
+  --tok-function: #8ec07c;
+  --tok-builtin: #83a598;
+  --tok-attribute: #8ec07c;
+  --tok-operator: #fe801d;
+  --tok-punctuation: #ebdbb2;
+  --tok-name: #ebdbb2;
+  --tok-inserted: #b8bb26;
+  --tok-deleted: #fb4934;
+  --tok-error: #fb4934;
+}
