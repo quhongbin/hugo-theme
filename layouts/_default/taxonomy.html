@@ -27,6 +27,46 @@
       {{ else }}
         {{ partial "empty-state.html" . }}
       {{ end }}
+
+      {{/*
+        仅对 /tags/ 列表页（.Kind 为 taxonomy、单数名为 tag）：在「全部标签」栅格之后，
+        再按分类分组展示各分类下的标签，让访客直接看出「每个标签属于哪个分类」。
+        /categories/ 列表页（单数名为 category）保持默认行为，只展示分类本身。
+        统计逻辑与 sidebar.html 中一致：遍历分类下页面取 tags，按链接去重并累计
+        「分类内」出现次数，再按次数降序；term-grid partial 复用 Items 参数。
+      */}}
+      {{ if and (eq .Data.Singular "tag") (eq .Kind "taxonomy") }}
+        {{ with site.Taxonomies.categories }}
+          {{ range .ByCount }}
+            {{ $category := . }}
+            {{ $tagCounts := dict }}
+            {{ $tagTerms := dict }}
+            {{ range $category.Pages }}
+              {{ range .GetTerms "tags" }}
+                {{ $key := .Page.RelPermalink }}
+                {{ $tagCounts = merge $tagCounts (dict $key (add (index $tagCounts $key | default 0) 1)) }}
+                {{ $tagTerms = merge $tagTerms (dict $key .) }}
+              {{ end }}
+            {{ end }}
+            {{ $tagItems := slice }}
+            {{ range $key, $count := $tagCounts }}
+              {{ $tagItems = $tagItems | append (dict "Page" (index $tagTerms $key).Page "Count" $count) }}
+            {{ end }}
+            {{ $tagItems = sort $tagItems "Count" "desc" }}
+
+            {{ with $tagItems }}
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">{{ i18n "category" }}</p>
+                  <h2>{{ $category.Page.LinkTitle }}</h2>
+                </div>
+                <a class="text-link" href="{{ $category.Page.RelPermalink }}">{{ i18n "viewCategory" | default "查看该分类" }} →</a>
+              </div>
+              {{ partial "term-grid.html" (dict "Items" .) }}
+            {{ end }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
     </section>
   </div>
 {{ end }}
