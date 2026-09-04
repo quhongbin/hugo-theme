@@ -77,10 +77,28 @@
 
 - id: toggleTheme
   translation: 切换亮色 / 暗色主题
-- id: codeStyle
-  translation: 代码高亮样式
-- id: codeStyleCustom
-  translation: 默认
+- id: palette
+  translation: 主题配色
+- id: paletteModeLight
+  translation: 亮色
+- id: paletteModeDark
+  translation: 暗色
+- id: paletteDefaultLight
+  translation: 站点默认 · 亮色
+- id: paletteMacosLight
+  translation: macOS · 亮色
+- id: paletteGithubLight
+  translation: GitHub · 亮色
+- id: paletteGruvboxLight
+  translation: Gruvbox · 亮色
+- id: paletteDefaultDark
+  translation: 站点默认 · 暗色
+- id: paletteMacosDark
+  translation: macOS · 暗色
+- id: paletteGithubDark
+  translation: GitHub · 暗色
+- id: paletteGruvboxDark
+  translation: Gruvbox · 暗色
 - id: tag
   translation: 标签
 - id: category

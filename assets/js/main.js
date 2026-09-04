@@ -339,36 +339,50 @@
     mediaQuery.addListener(onSystemThemeChange);
   }
 
-  /* ---------- 代码高亮样式选择器（悬停太阳/月亮图标时展开） ---------- */
+  /* ---------- 站点配色选择器（悬停太阳/月亮图标时展开） ---------- */
+  /* 每个选项由 header.html 提供两个 data 属性：
+       data-palette-value  default | macos | github | gruvbox
+       data-palette-mode   light | dark
+     属性名、localStorage 键（site-palette）必须与 head.html 里的首屏恢复脚本
+     和 assets/css/themes/*.css 的 :root[data-palette="…"] 选择器保持一致。 */
 
-  const CODE_STYLES = ["custom-theme", "macos", "github", "gruvbox"];
-  const codeStyleOptions = document.querySelectorAll("[data-code-style-option]");
+  const PALETTES = ["default", "macos", "github", "gruvbox"];
+  const paletteOptions = document.querySelectorAll("[data-palette-value]");
 
-  const markActiveCodeStyle = (style) => {
-    codeStyleOptions.forEach((option) => {
-      const active = option.dataset.codeStyleOption === style;
+  const markActivePalette = () => {
+    const palette = rootElement.getAttribute("data-palette") || "default";
+    const mode = rootElement.getAttribute("data-theme") || "light";
+    paletteOptions.forEach((option) => {
+      const active = option.dataset.paletteValue === palette && option.dataset.paletteMode === mode;
       option.classList.toggle("is-active", active);
       option.setAttribute("aria-pressed", String(active));
     });
   };
 
-  const applyCodeStyle = (style) => {
-    if (!CODE_STYLES.includes(style)) style = "custom-theme";
-    // custom-theme 是默认样式：移除属性即恢复，不写入属性
-    if (style === "custom-theme") {
-      rootElement.removeAttribute("data-code-style");
+  const applyPalette = (palette) => {
+    if (!PALETTES.includes(palette)) palette = "default";
+    // default 即 main.css :root 的 custom-theme 配色：移除属性而不是写入值
+    if (palette === "default") {
+      rootElement.removeAttribute("data-palette");
     } else {
-      rootElement.setAttribute("data-code-style", style);
+      rootElement.setAttribute("data-palette", palette);
     }
-    markActiveCodeStyle(style);
-    try { localStorage.setItem("code-style", style); } catch (error) { /* 隐私模式忽略 */ }
+    try { localStorage.setItem("site-palette", palette); } catch (error) { /* 隐私模式忽略 */ }
   };
 
-  if (codeStyleOptions.length) {
-    // 初始高亮当前生效的样式（与 head 里的恢复逻辑一致）
-    markActiveCodeStyle(rootElement.getAttribute("data-code-style") || "custom-theme");
-    codeStyleOptions.forEach((option) => {
-      option.addEventListener("click", () => applyCodeStyle(option.dataset.codeStyleOption));
+  if (paletteOptions.length) {
+    markActivePalette();
+    paletteOptions.forEach((option) => {
+      option.addEventListener("click", () => {
+        applyPalette(option.dataset.paletteValue);
+        applyTheme(option.dataset.paletteMode, true);
+        markActivePalette();
+      });
     });
+
+    // 太阳/月亮按钮只翻转亮暗，配色不变，但高亮项要跟着换组。
+    // 这个监听注册在上面翻转 data-theme 的那个之后，因此读到的已是新值。
+    if (themeButton) themeButton.addEventListener("click", markActivePalette);
+    if (mediaQuery.addEventListener) mediaQuery.addEventListener("change", markActivePalette);
   }
 })();

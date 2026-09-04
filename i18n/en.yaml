@@ -76,10 +76,28 @@
   translation: Fetching today's quote
 - id: toggleTheme
   translation: Toggle light / dark theme
-- id: codeStyle
-  translation: Code highlight style
-- id: codeStyleCustom
-  translation: Default
+- id: palette
+  translation: Color palette
+- id: paletteModeLight
+  translation: Light
+- id: paletteModeDark
+  translation: Dark
+- id: paletteDefaultLight
+  translation: Site default · Light
+- id: paletteMacosLight
+  translation: macOS · Light
+- id: paletteGithubLight
+  translation: GitHub · Light
+- id: paletteGruvboxLight
+  translation: Gruvbox · Light
+- id: paletteDefaultDark
+  translation: Site default · Dark
+- id: paletteMacosDark
+  translation: macOS · Dark
+- id: paletteGithubDark
+  translation: GitHub · Dark
+- id: paletteGruvboxDark
+  translation: Gruvbox · Dark
 - id: tag
   translation: Tag
 - id: category
