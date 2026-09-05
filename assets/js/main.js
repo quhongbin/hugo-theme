@@ -98,7 +98,13 @@
         entry.target.classList.add("is-visible");
         observer.unobserve(entry.target);
       });
-    }, { rootMargin: "0px 0px -30px", threshold: 0.08 });
+      /* threshold 只能填 0。它比的是「可见面积 ÷ 元素自身总面积」，而不是
+         「元素占了视口多少」：长文章的 .article 往往有视口的十几倍高，这个
+         比值永远摸不到 0.08，Chrome 下 entry.isIntersecting 会一直是 false，
+         正文就永远停在 .reveal 的 opacity: 0 上——目录是 .article 的兄弟节点、
+         不带 .reveal，所以页面表现为「有目录、有 DOM，唯独正文看不见」。
+         想让卡片进视口一点再淡入，用 rootMargin 的下边距收口，别动 threshold。 */
+    }, { rootMargin: "0px 0px -60px", threshold: 0 });
 
     revealItems.forEach((item) => {
       /* 延迟按「同一容器内的出现顺序」算，而不是全页序号：
